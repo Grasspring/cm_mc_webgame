@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中醫學習選擇題遊戲</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .setup-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 14px;
+            min-width: 0; /* 允許縮小 */
+            line-height: 1.2;
+        }
+
+        .checkbox-item:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 6px;
+            margin-top: 0;
+            margin-bottom: 0;
+            transform: scale(1.1);
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            line-height: 1.2;
+            vertical-align: middle;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input[type="checkbox"]:checked + label {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .difficulty-description {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+
+        .difficulty-description small {
+            color: #6c757d;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        /* 開始測驗按鈕特殊樣式 */
+        .start-quiz-button {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 30px auto 20px auto;
+            padding: 20px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: none;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        .start-quiz-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
+            background: linear-gradient(135deg, #218838 0%, #1ea080 100%);
+        }
+
+        .start-quiz-button:active {
+            transform: translateY(-1px);
+        }
+
+        /* 其他按鈕區域 */
+        .other-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .quiz-section {
+            display: none;
+        }
+
+        .question-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.4em;
+            line-height: 1.8;
+            white-space: pre-line;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .answer-options {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .answer-option {
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            white-space: pre-line;
+            line-height: 1.8;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .answer-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .answer-option.selected {
+            border-color: #667eea;
+            background: #e6f0ff;
+        }
+
+        .answer-option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .answer-option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .question-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-display {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+
+        .result-correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result-incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .final-score {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .final-score h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .final-score .score {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .statistics-report {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .statistics-report h3 {
+            color: white;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+        }
+
+        .stats-details {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .stats-details.show {
+            display: block;
+        }
+
+        .question-result {
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .question-result.correct {
+            border-left-color: #28a745;
+        }
+
+        .question-result.incorrect {
+            border-left-color: #dc3545;
+        }
+
+        .question-result-header {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .question-result-content {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.4;
+        }
+
+        .user-answer, .correct-answer {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .user-answer.correct {
+            background: rgba(40, 167, 69, 0.2);
+        }
+
+        .user-answer.incorrect {
+            background: rgba(220, 53, 69, 0.2);
+        }
+
+        .correct-answer {
+            background: rgba(40, 167, 69, 0.2);
+        }
+
+        .final-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .stats-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .history-stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .history-stats-table th,
+        .history-stats-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .history-stats-table th {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+
+        .history-stats-table tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .accuracy-bar {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            position: relative;
+            min-width: 100px;
+        }
+
+        .accuracy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%);
+            transition: width 0.3s ease;
+        }
+
+        .accuracy-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .no-stats-message {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 40px;
+            font-size: 1.1em;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .show-history {
+            display: block !important;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .checkbox-group {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+
+            .checkbox-item {
+                padding: 6px 8px;
+                font-size: 13px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .start-quiz-button {
+                padding: 16px 30px;
+                font-size: 18px;
+                margin: 25px auto 15px auto;
+            }
+            
+            .other-buttons {
+                gap: 10px;
+            }
+            
+            .other-buttons .btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>中醫學習選擇題遊戲</h1>
+            <p>測試您的中醫理論知識</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 遊戲設定區域 -->
+            <div id="setupSection" class="setup-section">
+                <div class="section-title">📚 科目選擇</div>
+                <div class="form-group">
+                    <label for="subjectSelect">選擇學習科目：</label>
+                    <select id="subjectSelect">
+                        <option value="">請選擇科目...</option>
+                    </select>
+                </div>
+
+                <div class="section-title">❓ 題型設定</div>
+                <div class="form-group">
+                    <label>問題將提供什麼資訊：</label>
+                    <div class="checkbox-group" id="questionInfo">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="info-病名" value="病名" checked>
+                            <label for="info-病名">病名</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="info-證型" value="證型" checked>
+                            <label for="info-證型">證型</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="info-治法" value="治法">
+                            <label for="info-治法">治法</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="info-方藥" value="方藥">
+                            <label for="info-方藥">方藥</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="info-證候" value="證候">
+                            <label for="info-證候">證候</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>答案組合的資料：</label>
+                    <div class="checkbox-group" id="answerInfo">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ans-病名" value="病名">
+                            <label for="ans-病名">病名</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ans-證型" value="證型">
+                            <label for="ans-證型">證型</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ans-治法" value="治法" checked>
+                            <label for="ans-治法">治法</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ans-方藥" value="方藥" checked>
+                            <label for="ans-方藥">方藥</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ans-證候" value="證候">
+                            <label for="ans-證候">證候</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">⚙️ 遊戲設定</div>
+                <div class="form-group">
+                    <label for="optionCount">答案選項數量：</label>
+                    <select id="optionCount">
+                        <option value="2">2項</option>
+                        <option value="3">3項</option>
+                        <option value="4" selected>4項</option>
+                        <option value="5">5項</option>
+                        <option value="6">6項</option>
+                        <option value="7">7項</option>
+                        <option value="8">8項</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="questionCount">問題數量：</label>
+                    <select id="questionCount">
+                        <option value="10" selected>10題</option>
+                        <option value="20">20題</option>
+                        <option value="30">30題</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="difficultyMode">難度設定：</label>
+                    <select id="difficultyMode">
+                        <option value="normal">一般模式（隨機答案）</option>
+                        <option value="hard">困難模式（同病名答案）</option>
+                    </select>
+                    <div class="difficulty-description">
+                        <small>
+                            <span id="difficultyDesc">一般模式：錯誤答案從所有資料中隨機選取</span>
+                        </small>
+                    </div>
+                </div>
+
+                <!-- 開始測驗按鈕 -->
+                <button class="start-quiz-button" onclick="startQuiz()">
+                    🎯 開始測驗
+                </button>
+
+                <!-- 其他功能按鈕 -->
+                <div class="other-buttons">
+                    <button class="btn btn-secondary" onclick="loadDatasetFiles()">🔄 重新掃描檔案</button>
+                    <button class="btn btn-secondary" onclick="testDataLoad()">🧪 測試數據載入</button>
+                    <button class="btn btn-secondary" onclick="testEncodingFix()">🔧 測試編碼修復</button>
+                    <button class="btn btn-secondary" onclick="showHistoryStats()">📈 學習歷史</button>
+                </div>
+            </div>
+
+            <!-- 測驗區域 -->
+            <div id="quizSection" class="quiz-section">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <div class="question-header">
+                    <div class="question-number" id="questionNumber"></div>
+                    <div class="question-text" id="questionText"></div>
+                </div>
+
+                <div id="resultDisplay" class="result-display hidden"></div>
+
+                <div class="answer-options" id="answerOptions"></div>
+
+                <div class="question-controls">
+                    <button class="btn btn-secondary" onclick="endQuiz()">結束測驗</button>
+                    <button class="btn btn-primary" onclick="nextQuestion()" id="nextQuestionBtn" style="display: none;">下一題</button>
+                    <button class="btn btn-secondary" onclick="showAnswer()" id="showAnswerBtn">直接查看答案</button>
+                </div>
+            </div>
+
+            <!-- 最終分數區域 -->
+            <div id="finalScoreSection" class="hidden">
+                <div class="final-score">
+                    <h2>🎉 測驗完成！</h2>
+                    <div class="score" id="finalScore"></div>
+                    <p id="scoreMessage"></p>
+                    
+                    <!-- 統計報告 -->
+                    <div class="statistics-report">
+                        <h3>📊 詳細統計報告</h3>
+                        <div class="stats-summary" id="statsSummary"></div>
+                        <div class="stats-details" id="statsDetails"></div>
+                    </div>
+                    
+                    <div class="final-buttons">
+                        <button class="btn btn-secondary" onclick="toggleStatsDetails()" id="toggleStatsBtn">顯示詳細報告</button>
+                        <button class="btn btn-primary" onclick="restartGame()">再玩一次</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 歷史統計區域 -->
+        <div id="historyStatsSection" class="hidden">
+            <div class="final-score">
+                <h2>📈 學習歷史統計</h2>
+                <div class="statistics-report">
+                    <div class="stats-controls">
+                        <button class="btn btn-secondary" onclick="clearHistoryStats()">清除歷史記錄</button>
+                        <button class="btn btn-secondary" onclick="exportHistoryStats()">匯出統計</button>
+                        <button class="btn btn-primary" onclick="hideHistoryStats()">返回遊戲</button>
+                    </div>
+                    <div id="historyStatsContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="encrypted_datasets.js"></script>
+    <script>
+        let currentDataset = [];
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let totalQuestions = 0;
+        let questionAnswered = false;
+        let currentDifficultyMode = 'normal';
+        let questionResults = []; // 存儲每題的答題結果
+
+        // 更新checkbox項目的視覺狀態（已移除著色效果）
+        function updateCheckboxItemStyle(item, isChecked) {
+            // 不再需要視覺狀態更新，保留函數以免破壞現有代碼
+        }
+
+        // Cookie操作函數
+        // ===== 本地存儲管理函數 =====
+        
+        // 設置本地存儲數據
+        function setLocalStorage(key, value) {
+            try {
+                const jsonString = JSON.stringify(value);
+                console.log(`📝 設置LocalStorage: ${key}`);
+                console.log(`- 項目數量: ${typeof value === 'object' ? Object.keys(value).length : 'N/A'}`);
+                console.log(`- 數據大小: ${jsonString.length} 字符`);
+                
+                localStorage.setItem(key, jsonString);
+                console.log(`✅ LocalStorage已設置: ${key}`);
+                
+                // 立即驗證
+                const verify = getLocalStorage(key);
+                if (verify) {
+                    const verifyCount = typeof verify === 'object' ? Object.keys(verify).length : 'N/A';
+                    console.log(`🔍 LocalStorage設置驗證成功: ${key}, 項目數: ${verifyCount}`);
+                } else {
+                    console.error(`❌ LocalStorage設置驗證失敗: ${key}`);
+                }
+                
+                return true;
+            } catch (error) {
+                console.error(`❌ 設置LocalStorage失敗: ${key}`, error);
+                
+                // 如果是存儲空間不足，嘗試清理
+                if (error.name === 'QuotaExceededError') {
+                    console.warn('⚠️ LocalStorage空間不足，嘗試清理舊數據');
+                    if (key === 'cmGameStudyStats' && typeof value === 'object') {
+                        return cleanAndSaveStats(value);
+                    }
+                }
+                return false;
+            }
+        }
+        
+        // 獲取本地存儲數據
+        function getLocalStorage(key) {
+            try {
+                const item = localStorage.getItem(key);
+                if (item === null) {
+                    console.log(`📭 LocalStorage中沒有找到: ${key}`);
+                    return null;
+                }
+                
+                const parsed = JSON.parse(item);
+                console.log(`📬 成功讀取LocalStorage: ${key}`, typeof parsed === 'object' ? `項目數: ${Object.keys(parsed).length}` : parsed);
+                return parsed;
+            } catch (error) {
+                console.error(`❌ 讀取LocalStorage失敗: ${key}`, error);
+                return null;
+            }
+        }
+        
+        // 刪除本地存儲數據
+        function removeLocalStorage(key) {
+            try {
+                localStorage.removeItem(key);
+                console.log(`🗑️ 已刪除LocalStorage: ${key}`);
+            } catch (error) {
+                console.error(`❌ 刪除LocalStorage失敗: ${key}`, error);
+            }
+        }
+        
+        // 清理並保存統計數據
+        function cleanAndSaveStats(stats) {
+            try {
+                const entries = Object.entries(stats);
+                console.log(`當前統計項目數: ${entries.length}`);
+                
+                // 保留最近的50個項目
+                const keepCount = 50;
+                console.log(`清理統計數據，保留最近的 ${keepCount} 個項目`);
+                
+                // 按最後練習時間排序
+                const sortedEntries = entries.sort((a, b) => {
+                    const timeA = new Date(a[1].lastAttempt || 0);
+                    const timeB = new Date(b[1].lastAttempt || 0);
+                    return timeB - timeA;
+                });
+                
+                const trimmedStats = {};
+                sortedEntries.slice(0, keepCount).forEach(([key, stat]) => {
+                    trimmedStats[key] = stat;
+                });
+                
+                const cleanedString = JSON.stringify(trimmedStats);
+                localStorage.setItem('cmGameStudyStats', cleanedString);
+                
+                console.log(`✅ 已清理並保存統計數據: ${Object.keys(trimmedStats).length} 個項目`);
+                return true;
+            } catch (error) {
+                console.error(`❌ 清理統計數據失敗:`, error);
+                return false;
+            }
+        }
+
+        // 獲取學習統計數據
+        function getStudyStats() {
+            return getLocalStorage('cmGameStudyStats') || {};
+        }
+
+        // 保存學習統計數據
+        function saveStudyStats(stats) {
+            return setLocalStorage('cmGameStudyStats', stats);
+        }
+
+        // 更新特定病名+證型的統計
+        function updateStudyStats(diseaseName, syndromeType, isCorrect) {
+            console.log(`\n=== 更新學習統計 ===`);
+            console.log(`病名: ${diseaseName}, 證型: ${syndromeType}, 正確: ${isCorrect}`);
+            
+            if (!diseaseName || !syndromeType) {
+                console.error('❌ 統計更新失敗：病名或證型為空');
+                return;
+            }
+            
+            // 讀取當前統計數據
+            const stats = getStudyStats();
+            const beforeCount = Object.keys(stats).length;
+            console.log(`📊 更新前統計項目數量: ${beforeCount}`);
+            
+            const key = `${diseaseName}_${syndromeType}`;
+            console.log(`🔑 統計鍵值: ${key}`);
+            
+            // 檢查是否為新項目
+            const isNewEntry = !stats[key];
+            console.log(`📝 是否為新項目: ${isNewEntry ? '是' : '否'}`);
+            
+            if (isNewEntry) {
+                stats[key] = {
+                    diseaseName: diseaseName,
+                    syndromeType: syndromeType,
+                    totalAttempts: 0,
+                    correctAttempts: 0,
+                    lastAttempt: null,
+                    firstAttempt: new Date().toISOString()
+                };
+                console.log(`✨ 創建新的統計項目: ${key}`);
+            } else {
+                console.log(`🔄 更新現有統計項目: ${key}`);
+            }
+            
+            // 記錄更新前的狀態
+            const beforeUpdate = { ...stats[key] };
+            
+            // 更新統計數據
+            stats[key].totalAttempts++;
+            if (isCorrect) {
+                stats[key].correctAttempts++;
+            }
+            stats[key].lastAttempt = new Date().toISOString();
+            
+            console.log(`📈 統計更新:`);
+            console.log(`   總次數: ${beforeUpdate.totalAttempts} → ${stats[key].totalAttempts}`);
+            console.log(`   正確次數: ${beforeUpdate.correctAttempts} → ${stats[key].correctAttempts}`);
+            
+            const afterCount = Object.keys(stats).length;
+            console.log(`📊 更新後統計項目數量: ${beforeCount} → ${afterCount}`);
+            
+            try {
+                // 檢查數據大小
+                const statsString = JSON.stringify(stats);
+                console.log(`💾 統計數據JSON大小: ${statsString.length} 字符`);
+                
+                // 保存統計數據
+                saveStudyStats(stats);
+                console.log(`✅ 統計數據已保存`);
+                
+                // 立即驗證保存結果
+                setTimeout(() => {
+                    const savedStats = getStudyStats();
+                    const savedCount = Object.keys(savedStats).length;
+                    const savedItem = savedStats[key];
+                    
+                    console.log(`� 保存驗證結果:`);
+                    console.log(`   期望項目數: ${afterCount}, 實際項目數: ${savedCount}`);
+                    console.log(`   期望項目存在: ${key}`);
+                    console.log(`   實際項目內容:`, savedItem);
+                    
+                    // 更精確的驗證
+                    const itemExists = savedItem && typeof savedItem === 'object' && savedItem.diseaseName === diseaseName;
+                    const countMatches = savedCount === afterCount; // 精確匹配項目數
+                    
+                    console.log(`   項目存在檢查: ${itemExists}`);
+                    console.log(`   項目數檢查: ${countMatches}`);
+                    
+                    if (itemExists && countMatches) {
+                        console.log(`✅ 統計數據保存驗證成功`);
+                    } else {
+                        console.error(`❌ 統計數據保存驗證失敗`);
+                        console.log(`期望統計:`, stats[key]);
+                        console.log(`實際統計:`, savedItem);
+                        console.log(`保存的所有項目:`, Object.keys(savedStats));
+                        
+                        // 檢查 LocalStorage 是否真的存在
+                        const rawStorage = localStorage.getItem('cmGameStudyStats');
+                        const hasStats = rawStorage !== null;
+                        console.log(`LocalStorage 存在檢查: ${hasStats}`);
+                        console.log(`LocalStorage 數據長度: ${rawStorage ? rawStorage.length : 0} 字符`);
+                        if (!hasStats) {
+                            console.error(`❌ LocalStorage 根本沒有被設置！`);
+                        } else {
+                            console.log(`LocalStorage 數據片段:`, rawStorage.substring(0, 200) + '...');
+                        }
+                    }
+                }, 100);
+                
+            } catch (error) {
+                console.error(`❌ 統計保存失敗:`, error);
+            }
+        }
+
+        // 頁面加載時初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== 中醫學習選擇題遊戲初始化 ===');
+            console.log('瀏覽器:', navigator.userAgent);
+            console.log('當前網址:', window.location.href);
+            
+            // 檢查是否通過服務器訪問
+            if (window.location.protocol === 'file:') {
+                console.warn('警告：您正在通過 file:// 協議訪問，可能會遇到CORS問題');
+                console.log('建議：請使用 Python 服務器啟動遊戲 (python server.py)');
+            } else {
+                console.log('✓ 正在通過HTTP服務器訪問');
+            }
+            
+            // 為所有checkbox-item添加點擊事件
+            document.querySelectorAll('.checkbox-item').forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                
+                // 初始化選中狀態樣式
+                if (checkbox) {
+                    updateCheckboxItemStyle(item, checkbox.checked);
+                    
+                    // 監聽checkbox狀態變化
+                    checkbox.addEventListener('change', function() {
+                        updateCheckboxItemStyle(item, this.checked);
+                    });
+                }
+                
+                // 點擊整個項目切換checkbox
+                item.addEventListener('click', function(e) {
+                    // 如果點擊的不是checkbox本身，則切換checkbox狀態
+                    if (e.target.type !== 'checkbox') {
+                        if (checkbox) {
+                            checkbox.checked = !checkbox.checked;
+                            // 觸發change事件
+                            checkbox.dispatchEvent(new Event('change'));
+                        }
+                    }
+                });
+            });
+
+            // 難度模式描述更新
+            const difficultySelect = document.getElementById('difficultyMode');
+            const difficultyDesc = document.getElementById('difficultyDesc');
+            
+            if (difficultySelect && difficultyDesc) {
+                difficultySelect.addEventListener('change', function() {
+                    if (this.value === 'hard') {
+                        difficultyDesc.textContent = '困難模式：錯誤答案僅從相同病名的其他證型/治法/方藥中選取，更具挑戰性';
+                    } else {
+                        difficultyDesc.textContent = '一般模式：錯誤答案從所有資料中隨機選取';
+                    }
+                });
+            }
+            
+            loadDatasetFiles();
+        });
+
+        // 載入數據集文件
+        async function loadDatasetFiles() {
+            console.log('載入加密數據集...');
+            
+            try {
+                // 檢查是否有加密數據集
+                if (typeof ENCRYPTED_DATASETS === 'undefined') {
+                    throw new Error('加密數據集未載入');
+                }
+
+                const select = document.getElementById('subjectSelect');
+                select.innerHTML = '<option value="">請選擇科目...</option>';
+                
+                // 從加密數據集中獲取科目列表
+                const subjects = Object.keys(ENCRYPTED_DATASETS);
+                console.log('可用科目:', subjects);
+                
+                subjects.forEach(subjectKey => {
+                    const option = document.createElement('option');
+                    option.value = subjectKey;
+                    // 將鍵名轉換為顯示名稱
+                    const displayName = subjectKey.includes('_') ? subjectKey.split('_').slice(1).join('_') : subjectKey;
+                    option.textContent = displayName;
+                    select.appendChild(option);
+                });
+
+                // 自動選擇第一個科目
+                if (subjects.length > 0) {
+                    select.value = subjects[0];
+                    const displayName = subjects[0].includes('_') ? subjects[0].split('_').slice(1).join('_') : subjects[0];
+                    console.log('已自動選擇第一個科目:', displayName);
+                }
+
+                console.log('科目選項已載入完成');
+
+            } catch (error) {
+                console.error('載入加密數據集失敗:', error);
+                // 備用方案：提供預設科目選項
+                const select = document.getElementById('subjectSelect');
+                select.innerHTML = `
+                    <option value="">請選擇科目...</option>
+                    <option value="01_內科">內科</option>
+                    <option value="02_婦科">婦科</option>
+                    <option value="03_兒科">兒科</option>
+                `;
+                
+                select.value = "01_內科";
+                console.log('使用備用預設科目選項');
+            }
+        }
+
+        // 載入並解密數據
+        async function loadCSVData(subjectKey) {
+            try {
+                console.log('正在載入加密數據:', subjectKey);
+                
+                // 檢查是否有加密數據集
+                if (typeof ENCRYPTED_DATASETS === 'undefined') {
+                    throw new Error('加密數據集未載入');
+                }
+                
+                // 獲取對應的加密數據
+                const encryptedData = ENCRYPTED_DATASETS[subjectKey];
+                if (!encryptedData) {
+                    throw new Error(`找不到科目數據: ${subjectKey}`);
+                }
+                
+                console.log('加密數據長度:', encryptedData.length, '字符');
+                
+                // 解密數據 (Base64解碼) - 支持UTF-8字符
+                let decodedData;
+                try {
+                    // 使用正確的UTF-8 Base64解碼方法
+                    const binaryString = atob(encryptedData);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    decodedData = new TextDecoder('utf-8').decode(bytes);
+                    console.log('解密後數據長度:', decodedData.length, '字符');
+                } catch (error) {
+                    throw new Error('數據解密失敗: ' + error.message);
+                }
+                
+                // 解析JSON數據
+                let jsonData;
+                try {
+                    // Fix unquoted 'ahyy' values in the JSON before parsing
+                    // 使用更精確的正則表達式來處理 ahyy 值
+                    const fixedData = decodedData.replace(/:\s*ahyy\b/g, ': "ahyy"');
+                    jsonData = JSON.parse(fixedData);
+                    console.log('解析後數據條數:', jsonData.length);
+                    console.log('數據解碼和解析完成，包含中文字符');
+                } catch (error) {
+                    console.error('JSON解析錯誤詳情:', error);
+                    console.error('數據樣本:', decodedData.substring(0, 200));
+                    throw new Error('JSON解析失敗: ' + error.message);
+                }
+                
+                if (!Array.isArray(jsonData) || jsonData.length === 0) {
+                    throw new Error('數據格式錯誤或為空');
+                }
+                
+                // 驗證數據結構
+                const sampleRow = jsonData[0];
+                const requiredFields = ['病名', '證型', '治法', '方藥', '證候'];
+                const missingFields = requiredFields.filter(field => !(field in sampleRow));
+                
+                if (missingFields.length > 0) {
+                    console.warn('部分必要欄位缺失:', missingFields);
+                }
+                
+                console.log('可用欄位:', Object.keys(sampleRow));
+                console.log('前3條數據範例:', jsonData.slice(0, 3));
+                
+                return jsonData;
+                
+            } catch (error) {
+                console.error('載入數據失敗:', error);
+                alert('載入數據失敗: ' + error.message + '\n\n請檢查:\n1. 加密數據集是否正確載入\n2. 數據格式是否正確\n3. 科目名稱是否匹配');
+                return [];
+            }
+        }
+
+        // 獲取選中的選項
+        function getCheckedValues(containerId) {
+            const container = document.getElementById(containerId);
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        // 生成題目
+        function generateQuestions(data, questionInfo, answerInfo, count) {
+            console.log('開始生成題目，數據量:', data.length);
+            const questions = [];
+            const usedCombinations = new Set();
+            let attempts = 0;
+            const maxAttempts = count * 20; // 增加嘗試次數以獲得更多樣化的組合
+
+            while (questions.length < count && attempts < maxAttempts) {
+                attempts++;
+                const randomRow = data[Math.floor(Math.random() * data.length)];
+                
+                // 檢查所需欄位是否有值
+                const hasQuestionInfo = questionInfo.every(info => randomRow[info] && randomRow[info].trim() !== '');
+                const hasAnswerInfo = answerInfo.every(info => randomRow[info] && randomRow[info].trim() !== '');
+                
+                if (!hasQuestionInfo || !hasAnswerInfo) {
+                    continue; // 跳過資料不完整的行
+                }
+                
+                // 使用病名+證型創建唯一標識符，而不是問題資訊
+                // 這樣可以確保每個病名證型組合都有機會被選中
+                const diseaseName = randomRow['病名'] || '';
+                const syndromeType = randomRow['證型'] || '';
+                const uniqueKey = `${diseaseName}_${syndromeType}`;
+                
+                console.log(`嘗試 ${attempts}: ${uniqueKey}`);
+                
+                if (usedCombinations.has(uniqueKey)) {
+                    console.log(`跳過重複組合: ${uniqueKey}`);
+                    continue;
+                }
+                usedCombinations.add(uniqueKey);
+                console.log(`添加新組合: ${uniqueKey}`);
+
+                // 構建問題文本
+                let questionText = '根據以下資訊：\n';
+                questionInfo.forEach(info => {
+                    if (randomRow[info] && randomRow[info].trim()) {
+                        questionText += `${info}：${randomRow[info]}\n`;
+                    }
+                });
+                questionText += `\n請選擇正確的${answerInfo.join('、')}：`;
+
+                // 構建正確答案
+                const correctAnswer = answerInfo.map(info => {
+                    return (randomRow[info] && randomRow[info].trim()) ? `${info}：${randomRow[info]}` : '';
+                }).filter(item => item).join('\n');
+
+                if (correctAnswer.trim()) {
+                    questions.push({
+                        question: questionText,
+                        correctAnswer: correctAnswer,
+                        data: randomRow,
+                        questionInfo: questionInfo,
+                        answerInfo: answerInfo
+                    });
+                    
+                    console.log(`生成第 ${questions.length} 題`);
+                }
+            }
+
+            console.log(`總共生成 ${questions.length} 題，嘗試 ${attempts} 次`);
+            return questions;
+        }
+
+        // 生成答案選項
+        function generateAnswerOptions(question, allData, optionCount, difficultyMode = 'normal') {
+            const options = [question.correctAnswer];
+            const usedAnswers = new Set([question.correctAnswer]);
+            let attempts = 0;
+            const maxAttempts = optionCount * 50; // 增加嘗試次數以適應困難模式
+
+            // 獲取候選數據池
+            let candidateData = allData;
+            if (difficultyMode === 'hard') {
+                // 困難模式：只從相同病名的資料中選取
+                const correctDiseaseName = question.data['病名'];
+                if (correctDiseaseName) {
+                    candidateData = allData.filter(row => 
+                        row['病名'] === correctDiseaseName && 
+                        row !== question.data // 排除正確答案本身
+                    );
+                    console.log(`困難模式：從 ${candidateData.length} 個相同病名「${correctDiseaseName}」的資料中選取錯誤答案`);
+                    
+                    // 如果同病名的資料不足，降級為普通模式
+                    if (candidateData.length < optionCount - 1) {
+                        console.log('同病名資料不足，降級為一般模式');
+                        candidateData = allData;
+                        difficultyMode = 'normal';
+                    }
+                }
+            }
+
+            while (options.length < optionCount && attempts < maxAttempts) {
+                attempts++;
+                const randomRow = candidateData[Math.floor(Math.random() * candidateData.length)];
+                
+                // 檢查隨機行是否有所需的答案資訊
+                const hasAnswerData = question.answerInfo.every(info => 
+                    randomRow[info] && randomRow[info].trim() !== ''
+                );
+                
+                if (!hasAnswerData) {
+                    continue;
+                }
+                
+                const fakeAnswer = question.answerInfo.map(info => {
+                    return (randomRow[info] && randomRow[info].trim()) ? `${info}：${randomRow[info]}` : '';
+                }).filter(item => item).join('\n');
+
+                if (fakeAnswer.trim() && 
+                    !usedAnswers.has(fakeAnswer) && 
+                    fakeAnswer !== question.correctAnswer) {
+                    options.push(fakeAnswer);
+                    usedAnswers.add(fakeAnswer);
+                }
+            }
+
+            // 如果無法生成足夠的選項，用佔位符填充
+            while (options.length < optionCount) {
+                const placeholderAnswer = question.answerInfo.map(info => 
+                    `${info}：[選項 ${options.length}]`
+                ).join('\n');
+                
+                if (!usedAnswers.has(placeholderAnswer)) {
+                    options.push(placeholderAnswer);
+                    usedAnswers.add(placeholderAnswer);
+                }
+            }
+
+            console.log(`${difficultyMode === 'hard' ? '困難模式' : '一般模式'}：為題目生成了 ${options.length} 個選項`);
+            
+            // 隨機排序選項
+            return options.sort(() => Math.random() - 0.5);
+        }
+
+        // 開始測驗
+        async function startQuiz() {
+            console.log('開始測驗...');
+            
+            const selectedSubject = document.getElementById('subjectSelect').value;
+            const questionInfo = getCheckedValues('questionInfo');
+            const answerInfo = getCheckedValues('answerInfo');
+            const optionCount = parseInt(document.getElementById('optionCount').value);
+            const questionCount = parseInt(document.getElementById('questionCount').value);
+            const difficultyMode = document.getElementById('difficultyMode').value;
+
+            console.log('測驗設定:', {
+                科目: selectedSubject,
+                問題資訊: questionInfo,
+                答案資訊: answerInfo,
+                選項數量: optionCount,
+                問題數量: questionCount,
+                難度模式: difficultyMode
+            });
+
+            // 驗證設定
+            if (!selectedSubject) {
+                alert('請選擇科目');
+                return;
+            }
+            if (questionInfo.length === 0) {
+                alert('請選擇至少一項問題資訊');
+                return;
+            }
+            if (answerInfo.length === 0) {
+                alert('請選擇至少一項答案資訊');
+                return;
+            }
+
+            // 顯示載入中狀態
+            const startButton = document.querySelector('button[onclick="startQuiz()"]');
+            const originalText = startButton.textContent;
+            startButton.textContent = '🔄 載入中...';
+            startButton.disabled = true;
+
+            try {
+                // 載入數據
+                console.log('正在載入數據...');
+                currentDataset = await loadCSVData(selectedSubject);
+                
+                if (currentDataset.length === 0) {
+                    throw new Error('數據載入失敗或數據為空');
+                }
+
+                console.log('數據載入成功，共', currentDataset.length, '條記錄');
+
+                // 檢查數據中是否包含所需欄位
+                const sampleRow = currentDataset[0];
+                const missingFields = [];
+                
+                questionInfo.forEach(field => {
+                    if (!(field in sampleRow)) {
+                        missingFields.push(field);
+                    }
+                });
+                
+                answerInfo.forEach(field => {
+                    if (!(field in sampleRow)) {
+                        missingFields.push(field);
+                    }
+                });
+
+                if (missingFields.length > 0) {
+                    throw new Error(`數據中缺少必要欄位: ${missingFields.join(', ')}\n\n可用欄位: ${Object.keys(sampleRow).join(', ')}`);
+                }
+
+                // 生成題目
+                console.log('正在生成題目...');
+                
+                // 記錄所有可能的病名證型組合
+                const allCombinations = new Set();
+                currentDataset.forEach(row => {
+                    if (row['病名'] && row['證型']) {
+                        allCombinations.add(`${row['病名']}_${row['證型']}`);
+                    }
+                });
+                console.log(`🎯 數據集中共有 ${allCombinations.size} 種不同的病名證型組合`);
+                
+                currentQuestions = generateQuestions(currentDataset, questionInfo, answerInfo, questionCount);
+                
+                if (currentQuestions.length === 0) {
+                    throw new Error('無法生成題目，請檢查數據或調整設定');
+                }
+
+                console.log('成功生成', currentQuestions.length, '道題目');
+
+                // 統計本次測驗將包含的病名證型組合
+                const testCombinations = new Set();
+                currentQuestions.forEach((q, index) => {
+                    if (q.data['病名'] && q.data['證型']) {
+                        const combo = `${q.data['病名']}_${q.data['證型']}`;
+                        testCombinations.add(combo);
+                        console.log(`第${index + 1}題: ${combo}`);
+                    }
+                });
+                console.log(`📊 本次測驗包含 ${testCombinations.size} 種不同的病名證型組合`);
+                console.log('本次測驗的組合:', Array.from(testCombinations));
+
+                // 初始化測驗狀態
+                currentQuestionIndex = 0;
+                score = 0;
+                totalQuestions = currentQuestions.length;
+                questionAnswered = false;
+                currentDifficultyMode = difficultyMode;
+                questionResults = []; // 重置統計數據
+
+                // 切換界面
+                document.getElementById('setupSection').style.display = 'none';
+                document.getElementById('quizSection').style.display = 'block';
+
+                // 顯示第一題
+                showCurrentQuestion();
+
+            } catch (error) {
+                console.error('啟動測驗失敗:', error);
+                alert('啟動測驗失敗:\n\n' + error.message);
+            } finally {
+                // 恢復按鈕狀態
+                startButton.textContent = originalText;
+                startButton.disabled = false;
+            }
+        }
+
+        // 顯示當前題目
+        function showCurrentQuestion() {
+            if (currentQuestionIndex >= currentQuestions.length) {
+                showFinalScore();
+                return;
+            }
+
+            const question = currentQuestions[currentQuestionIndex];
+            const optionCount = parseInt(document.getElementById('optionCount').value);
+
+            // 添加數據結構檢查
+            console.log('=== 顯示問題時的數據檢查 ===');
+            console.log('問題索引:', currentQuestionIndex);
+            console.log('完整問題對象:', question);
+            console.log('問題數據 (question.data):', question.data);
+            if (question.data) {
+                console.log('數據欄位:', Object.keys(question.data));
+                console.log('病名欄位值:', question.data['病名']);
+                console.log('證型欄位值:', question.data['證型']);
+            } else {
+                console.error('⚠️ 問題沒有 data 屬性！');
+            }
+
+            // 更新進度
+            const progress = ((currentQuestionIndex) / totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            // 更新題目信息
+            document.getElementById('questionNumber').textContent = 
+                `第 ${currentQuestionIndex + 1} 題 / 共 ${totalQuestions} 題`;
+            document.getElementById('questionText').textContent = question.question;
+
+            // 生成答案選項
+            const options = generateAnswerOptions(question, currentDataset, optionCount, currentDifficultyMode);
+            const optionsContainer = document.getElementById('answerOptions');
+            optionsContainer.innerHTML = '';
+
+            options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'answer-option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectAnswer(optionDiv, option);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            // 重置按鈕狀態
+            questionAnswered = false;
+            document.getElementById('showAnswerBtn').style.display = 'inline-block';
+            document.getElementById('nextQuestionBtn').style.display = 'none';
+
+            // 清除所有選項的選中狀態
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+                option.style.pointerEvents = 'auto'; // 重新啟用點擊
+            });
+        }
+
+        // 選擇答案
+        function selectAnswer(element, answer) {
+            if (questionAnswered) return;
+
+            // 立即標記為已回答
+            questionAnswered = true;
+            const question = currentQuestions[currentQuestionIndex];
+            const isCorrect = element.textContent === question.correctAnswer;
+
+            // 更新Cookie統計（如果問題包含病名和證型）
+            const diseaseName = question.data['病名'];
+            const syndromeType = question.data['證型'];
+            console.log('答題統計檢查:');
+            console.log('問題數據:', question.data);
+            console.log('病名:', diseaseName);
+            console.log('證型:', syndromeType);
+            
+            if (diseaseName && syndromeType) {
+                console.log('開始更新統計...');
+                updateStudyStats(diseaseName, syndromeType, isCorrect);
+            } else {
+                console.log('⚠️ 跳過統計更新：缺少病名或證型');
+                console.log('可用欄位:', Object.keys(question.data));
+            }
+
+            // 記錄答題結果
+            const questionResult = {
+                questionNumber: currentQuestionIndex + 1,
+                question: question.question,
+                userAnswer: element.textContent,
+                correctAnswer: question.correctAnswer,
+                isCorrect: isCorrect,
+                timestamp: new Date(),
+                diseaseName: diseaseName,
+                syndromeType: syndromeType
+            };
+            questionResults.push(questionResult);
+
+            // 清除其他選項的選中狀態
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.classList.remove('selected');
+                option.style.pointerEvents = 'none'; // 禁用點擊
+            });
+
+            // 標記當前選項為選中
+            element.classList.add('selected');
+
+            // 立即顯示正確答案和結果
+            document.querySelectorAll('.answer-option').forEach(option => {
+                if (option.textContent === question.correctAnswer) {
+                    option.classList.add('correct');
+                } else if (option.classList.contains('selected')) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            // 計分（答對時加分）
+            if (isCorrect) {
+                score++;
+            }
+
+            // 更新按鈕
+            document.getElementById('showAnswerBtn').style.display = 'none';
+            document.getElementById('nextQuestionBtn').style.display = 'inline-block';
+        }
+
+        // 顯示答案（由於選擇答案時已經顯示，這個函數現在主要用於未選擇時強制顯示答案）
+        function showAnswer() {
+            if (questionAnswered) return;
+
+            questionAnswered = true;
+            const question = currentQuestions[currentQuestionIndex];
+
+            // 更新Cookie統計（跳過算作錯誤）
+            const diseaseName = question.data['病名'];
+            const syndromeType = question.data['證型'];
+            console.log('跳過答案統計檢查:');
+            console.log('問題數據:', question.data);
+            console.log('病名:', diseaseName);
+            console.log('證型:', syndromeType);
+            
+            if (diseaseName && syndromeType) {
+                console.log('開始更新統計（跳過答案）...');
+                updateStudyStats(diseaseName, syndromeType, false);
+            } else {
+                console.log('⚠️ 跳過統計更新：缺少病名或證型');
+                console.log('可用欄位:', Object.keys(question.data));
+            }
+
+            // 記錄未選擇答案的結果
+            const questionResult = {
+                questionNumber: currentQuestionIndex + 1,
+                question: question.question,
+                userAnswer: '未選擇',
+                correctAnswer: question.correctAnswer,
+                isCorrect: false,
+                timestamp: new Date(),
+                diseaseName: diseaseName,
+                syndromeType: syndromeType
+            };
+            questionResults.push(questionResult);
+
+            // 禁用所有選項的點擊
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+
+            // 標記正確答案
+            document.querySelectorAll('.answer-option').forEach(option => {
+                if (option.textContent === question.correctAnswer) {
+                    option.classList.add('correct');
+                }
+            });
+
+            // 更新按鈕
+            document.getElementById('showAnswerBtn').style.display = 'none';
+            document.getElementById('nextQuestionBtn').style.display = 'inline-block';
+        }
+
+        // 下一題
+        function nextQuestion() {
+            currentQuestionIndex++;
+            showCurrentQuestion();
+        }
+
+        // 顯示最終分數
+        function showFinalScore() {
+            const percentage = Math.round((score / totalQuestions) * 100);
+            
+            // 統計本次測驗的學習數據更新
+            console.log('=== 測驗結束統計摘要 ===');
+            const finalStats = getStudyStats();
+            console.log('最終統計項目總數:', Object.keys(finalStats).length);
+            
+            // 統計本次測驗涉及的病名證型組合
+            const thisTestCombinations = new Set();
+            currentQuestions.forEach(q => {
+                if (q.data['病名'] && q.data['證型']) {
+                    thisTestCombinations.add(`${q.data['病名']}_${q.data['證型']}`);
+                }
+            });
+            console.log(`本次測驗涉及 ${thisTestCombinations.size} 種病名證型組合:`, Array.from(thisTestCombinations));
+            
+            // 檢查這些組合在統計中的存在情況
+            let updatedCount = 0;
+            thisTestCombinations.forEach(combo => {
+                if (finalStats[combo]) {
+                    updatedCount++;
+                    console.log(`✅ ${combo}: 總次數 ${finalStats[combo].totalAttempts}, 正確次數 ${finalStats[combo].correctAttempts}`);
+                } else {
+                    console.log(`❌ ${combo}: 未在統計中找到`);
+                }
+            });
+            console.log(`📊 成功更新了 ${updatedCount}/${thisTestCombinations.size} 個組合的統計數據`);
+            
+            document.getElementById('quizSection').style.display = 'none';
+            document.getElementById('finalScoreSection').classList.remove('hidden');
+            
+            document.getElementById('finalScore').textContent = `${score}/${totalQuestions} (${percentage}%)`;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = '🏆 優秀！您對中醫理論掌握得很好！';
+            } else if (percentage >= 80) {
+                message = '👍 良好！繼續加油學習！';
+            } else if (percentage >= 60) {
+                message = '📚 及格！還有進步空間，建議多複習！';
+            } else {
+                message = '💪 需要加強！建議重新學習相關知識點！';
+            }
+            
+            document.getElementById('scoreMessage').textContent = message;
+            
+            // 生成統計報告
+            generateStatisticsReport();
+        }
+
+        // 生成統計報告
+        function generateStatisticsReport() {
+            const correctAnswers = questionResults.filter(r => r.isCorrect).length;
+            const incorrectAnswers = questionResults.filter(r => !r.isCorrect).length;
+            const skippedAnswers = questionResults.filter(r => r.userAnswer === '未選擇').length;
+            const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+            
+            // 計算平均答題時間（如果有時間戳記錄）
+            let avgTime = 0;
+            if (questionResults.length > 1) {
+                const totalTime = questionResults[questionResults.length - 1].timestamp - questionResults[0].timestamp;
+                avgTime = Math.round(totalTime / questionResults.length / 1000); // 秒
+            }
+            
+            // 生成統計摘要
+            const statsSummary = document.getElementById('statsSummary');
+            statsSummary.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${correctAnswers}</div>
+                    <div class="stat-label">答對題數</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${incorrectAnswers}</div>
+                    <div class="stat-label">答錯題數</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${skippedAnswers}</div>
+                    <div class="stat-label">跳過題數</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${percentage}%</div>
+                    <div class="stat-label">正確率</div>
+                </div>
+                ${avgTime > 0 ? `
+                <div class="stat-item">
+                    <div class="stat-value">${avgTime}s</div>
+                    <div class="stat-label">平均答題時間</div>
+                </div>
+                ` : ''}
+            `;
+            
+            // 生成詳細題目報告
+            const statsDetails = document.getElementById('statsDetails');
+            let detailsHTML = '<h4 style="color: white; margin-bottom: 15px;">📋 題目詳細分析</h4>';
+            
+            questionResults.forEach((result, index) => {
+                detailsHTML += `
+                    <div class="question-result ${result.isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="question-result-header">
+                            ${result.isCorrect ? '✅' : '❌'} 第 ${result.questionNumber} 題
+                        </div>
+                        <div class="question-result-content">
+                            <div><strong>題目：</strong></div>
+                            <div style="white-space: pre-line; margin: 8px 0; font-size: 0.9em;">${result.question}</div>
+                            
+                            <div class="user-answer ${result.isCorrect ? 'correct' : 'incorrect'}">
+                                <strong>您的答案：</strong><br>
+                                ${result.userAnswer}
+                            </div>
+                            
+                            ${!result.isCorrect ? `
+                            <div class="correct-answer">
+                                <strong>正確答案：</strong><br>
+                                ${result.correctAnswer}
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            statsDetails.innerHTML = detailsHTML;
+        }
+
+        // 切換詳細統計顯示
+        function toggleStatsDetails() {
+            const statsDetails = document.getElementById('statsDetails');
+            const toggleBtn = document.getElementById('toggleStatsBtn');
+            
+            if (statsDetails.classList.contains('show')) {
+                statsDetails.classList.remove('show');
+                toggleBtn.textContent = '顯示詳細報告';
+            } else {
+                statsDetails.classList.add('show');
+                toggleBtn.textContent = '隱藏詳細報告';
+            }
+        }
+
+        // 結束測驗
+        function endQuiz() {
+            if (confirm('確定要結束測驗嗎？')) {
+                showFinalScore();
+            }
+        }
+
+        // 重新開始遊戲
+        function restartGame() {
+            document.getElementById('finalScoreSection').classList.add('hidden');
+            document.getElementById('quizSection').style.display = 'none';
+            document.getElementById('setupSection').style.display = 'block';
+            
+            // 重置狀態
+            currentQuestions = [];
+            currentQuestionIndex = 0;
+            score = 0;
+            totalQuestions = 0;
+            questionAnswered = false;
+            currentDifficultyMode = 'normal';
+            questionResults = []; // 重置統計數據
+            
+            // 重置詳細報告顯示狀態
+            const statsDetails = document.getElementById('statsDetails');
+            const toggleBtn = document.getElementById('toggleStatsBtn');
+            if (statsDetails) {
+                statsDetails.classList.remove('show');
+            }
+            if (toggleBtn) {
+                toggleBtn.textContent = '顯示詳細報告';
+            }
+        }
+
+        // 測試數據載入功能
+        async function testDataLoad() {
+            const selectedSubject = document.getElementById('subjectSelect').value;
+            
+            if (!selectedSubject) {
+                alert('請先選擇科目');
+                return;
+            }
+            
+            console.log('=== 開始測試數據載入 ===');
+            
+            try {
+                const data = await loadCSVData(selectedSubject);
+                
+                if (data.length > 0) {
+                    const sample = data[0];
+                    const message = `✅ 數據載入成功！\n\n` +
+                        `文件：${selectedSubject}\n` +
+                        `記錄數：${data.length}\n` +
+                        `可用欄位：${Object.keys(sample).join(', ')}\n\n` +
+                        `第一條記錄範例：\n${JSON.stringify(sample, null, 2)}`;
+                    
+                    alert(message);
+                    console.log('載入的數據:', data);
+                } else {
+                    alert('❌ 數據載入失敗或為空');
+                }
+                
+            } catch (error) {
+                alert('❌ 測試失敗：' + error.message);
+                console.error('測試錯誤:', error);
+            }
+        }
+
+        // 測試編碼修復功能
+        async function testEncodingFix() {
+            console.log('=== 開始測試編碼修復 ===');
+            
+            try {
+                // 檢查是否有加密數據集
+                if (typeof ENCRYPTED_DATASETS === 'undefined') {
+                    alert('❌ 無法載入加密數據集');
+                    return;
+                }
+                
+                const testSubject = '01_內科';
+                const encryptedData = ENCRYPTED_DATASETS[testSubject];
+                
+                if (!encryptedData) {
+                    alert('❌ 無法找到測試數據');
+                    return;
+                }
+                
+                let testResults = '🔧 編碼修復測試結果：\n\n';
+                testResults += `測試科目：${testSubject}\n`;
+                testResults += `加密數據長度：${encryptedData.length} 字符\n\n`;
+                
+                // 測試解碼
+                try {
+                    const binaryString = atob(encryptedData);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    const decodedData = new TextDecoder('utf-8').decode(bytes);
+                    
+                    testResults += `✅ UTF-8 解碼成功\n`;
+                    testResults += `解碼後長度：${decodedData.length} 字符\n\n`;
+                    
+                    // 檢查是否包含中文字符
+                    const chineseMatches = decodedData.match(/[\u4e00-\u9fff]/g);
+                    if (chineseMatches) {
+                        testResults += `✅ 包含中文字符：${chineseMatches.length} 個\n`;
+                        testResults += `前10個中文字符：${chineseMatches.slice(0, 10).join('')}\n\n`;
+                    } else {
+                        testResults += `⚠️ 未檢測到中文字符\n\n`;
+                    }
+                    
+                    // 測試JSON解析
+                    try {
+                        const fixedData = decodedData.replace(/:\s*ahyy\b/g, ': "ahyy"');
+                        const jsonData = JSON.parse(fixedData);
+                        
+                        testResults += `✅ JSON 解析成功\n`;
+                        testResults += `數據項目數：${jsonData.length}\n\n`;
+                        
+                        if (jsonData.length > 0) {
+                            const firstItem = jsonData[0];
+                            testResults += `第一個項目的欄位：\n`;
+                            Object.keys(firstItem).forEach(key => {
+                                const value = firstItem[key];
+                                testResults += `- ${key}：${value.length > 20 ? value.substring(0, 20) + '...' : value}\n`;
+                            });
+                        }
+                        
+                        testResults += `\n✅ 編碼修復測試完成！數據可以正確顯示中文內容。`;
+                        
+                    } catch (jsonError) {
+                        testResults += `❌ JSON 解析失敗：${jsonError.message}\n`;
+                        testResults += `數據樣本：${decodedData.substring(0, 100)}...\n`;
+                    }
+                    
+                } catch (decodeError) {
+                    testResults += `❌ 解碼失敗：${decodeError.message}`;
+                }
+                
+                alert(testResults);
+                console.log('編碼測試結果:', testResults);
+                
+            } catch (error) {
+                alert('❌ 編碼測試失敗：' + error.message);
+                console.error('編碼測試錯誤:', error);
+            }
+        }
+
+        // 顯示歷史統計
+        function showHistoryStats() {
+            console.log('=== 顯示學習歷史統計 ===');
+            
+            // 立即顯示提示，讓用戶知道按鈕有反應
+            console.log('按鈕被點擊了，正在加載歷史統計...');
+            
+            const stats = getStudyStats();
+            console.log('學習統計數據:', stats);
+            
+            const content = document.getElementById('historyStatsContent');
+            const historySection = document.getElementById('historyStatsSection');
+            const mainContent = document.querySelector('.main-content');
+            
+            console.log('統計內容容器:', content);
+            console.log('歷史統計區域:', historySection);
+            console.log('主內容區域:', mainContent);
+            
+            if (!content) {
+                console.error('找不到 historyStatsContent 元素');
+                alert('錯誤：找不到統計內容容器');
+                return;
+            }
+            
+            if (!historySection) {
+                console.error('找不到 historyStatsSection 元素');
+                alert('錯誤：找不到歷史統計區域');
+                return;
+            }
+            
+            if (!stats || Object.keys(stats).length === 0) {
+                console.log('沒有學習歷史記錄，顯示提示信息');
+                content.innerHTML = `
+                    <div class="no-stats-message">
+                        <h3>🔍 尚無學習歷史紀錄</h3>
+                        <p>要開始記錄學習統計，請進行測驗來累積學習記錄</p>
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <p><strong>📊 學習統計功能：</strong></p>
+                            <ul style="text-align: left; margin: 10px 0;">
+                                <li>自動記錄每個病名+證型組合的答題情況</li>
+                                <li>追蹤答題次數和正確率</li>
+                                <li>顯示學習進度和薄弱環節</li>
+                            </ul>
+                        </div>
+                        <p><small>開始測驗後，系統會自動記錄您的學習統計</small></p>
+                    </div>
+                `;
+            } else {
+                console.log(`📊 找到 ${Object.keys(stats).length} 個統計項目`);
+                console.log('所有統計項目:', Object.keys(stats));
+                
+                // 按正確率排序
+                const sortedEntries = Object.entries(stats).sort((a, b) => {
+                    const accuracyA = (a[1].correctAttempts / a[1].totalAttempts) || 0;
+                    const accuracyB = (b[1].correctAttempts / b[1].totalAttempts) || 0;
+                    return accuracyB - accuracyA;
+                });
+
+                console.log(`排序後準備顯示 ${sortedEntries.length} 個項目`);
+
+                let tableHTML = `
+                    <div style="margin-bottom: 15px; color: rgba(255,255,255,0.8);">
+                        <small>📈 統計項目總數: ${sortedEntries.length} 個 | 數據更新時間: ${new Date().toLocaleString('zh-TW')}</small>
+                    </div>
+                    <table class="history-stats-table">
+                        <thead>
+                            <tr>
+                                <th>病名</th>
+                                <th>證型</th>
+                                <th>答題次數</th>
+                                <th>答對次數</th>
+                                <th>正確率</th>
+                                <th>最後練習時間</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                sortedEntries.forEach(([key, stat]) => {
+                    const accuracy = ((stat.correctAttempts / stat.totalAttempts) * 100).toFixed(1);
+                    const lastAttempt = stat.lastAttempt ? 
+                        new Date(stat.lastAttempt).toLocaleString('zh-TW', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }) : '未知';
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>${stat.diseaseName}</td>
+                            <td>${stat.syndromeType}</td>
+                            <td>${stat.totalAttempts}</td>
+                            <td>${stat.correctAttempts}</td>
+                            <td>
+                                <div class="accuracy-bar">
+                                    <div class="accuracy-fill" style="width: ${accuracy}%"></div>
+                                    <div class="accuracy-text">${accuracy}%</div>
+                                </div>
+                            </td>
+                            <td>${lastAttempt}</td>
+                        </tr>
+                    `;
+                });
+
+                tableHTML += '</tbody></table>';
+                content.innerHTML = tableHTML;
+            }
+            
+            // 隱藏遊戲區域，顯示歷史統計
+            console.log('準備切換顯示區域...');
+            
+            if (mainContent) {
+                mainContent.style.display = 'none';
+                console.log('已隱藏主內容區域');
+            } else {
+                console.error('找不到主內容區域');
+            }
+            
+            if (historySection) {
+                historySection.classList.remove('hidden');
+                historySection.classList.add('show-history');
+                console.log('已顯示歷史統計區域');
+                console.log('歷史統計區域樣式:', window.getComputedStyle(historySection).display);
+            } else {
+                console.error('找不到歷史統計區域');
+            }
+        }
+
+        // 清除歷史統計
+        function clearHistoryStats() {
+            if (confirm('確定要清除所有學習歷史記錄嗎？此操作無法復原。')) {
+                deleteCookie('cmGameStudyStats');
+                alert('學習歷史記錄已清除');
+                showHistoryStats(); // 重新顯示空的統計
+            }
+        }
+
+        // 隱藏歷史統計，返回遊戲
+        function hideHistoryStats() {
+            console.log('隱藏歷史統計，返回遊戲');
+            const historyStatsSection = document.getElementById('historyStatsSection');
+            const mainContentArea = document.querySelector('.main-content');
+            
+            if (historyStatsSection) {
+                historyStatsSection.classList.remove('show-history');
+                historyStatsSection.classList.add('hidden');
+            }
+            
+            if (mainContentArea) {
+                mainContentArea.style.display = 'block';
+            }
+        }
+
+        // 匯出歷史統計
+        function exportHistoryStats() {
+            const stats = getStudyStats();
+            
+            if (!stats || Object.keys(stats).length === 0) {
+                alert('暫無歷史記錄可匯出');
+                return;
+            }
+
+            // 準備CSV格式的數據
+            let csvContent = '\uFEFF病名,證型,答題次數,答對次數,正確率,首次練習時間,最後練習時間\n'; // 添加BOM以支援中文
+            
+            Object.entries(stats).forEach(([key, stat]) => {
+                const accuracy = ((stat.correctAttempts / stat.totalAttempts) * 100).toFixed(1);
+                const firstAttempt = stat.firstAttempt ? 
+                    new Date(stat.firstAttempt).toLocaleString('zh-TW') : '未知';
+                const lastAttempt = stat.lastAttempt ? 
+                    new Date(stat.lastAttempt).toLocaleString('zh-TW') : '未知';
+                
+                csvContent += `"${stat.diseaseName}","${stat.syndromeType}",${stat.totalAttempts},${stat.correctAttempts},"${accuracy}%","${firstAttempt}","${lastAttempt}"\n`;
+            });
+
+            // 創建下載鏈接
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `中醫學習統計_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // 測試函數：創建模擬學習統計數據
+        function createTestStudyStats() {
+            const testStats = {
+                "感冒_風寒證": {
+                    diseaseName: "感冒",
+                    syndromeType: "風寒證",
+                    totalAttempts: 5,
+                    correctAttempts: 4,
+                    firstAttempt: new Date().toISOString(),
+                    lastAttempt: new Date().toISOString()
+                },
+                "咳嗽_痰熱證": {
+                    diseaseName: "咳嗽",
+                    syndromeType: "痰熱證",
+                    totalAttempts: 3,
+                    correctAttempts: 2,
+                    firstAttempt: new Date().toISOString(),
+                    lastAttempt: new Date().toISOString()
+                }
+            };
+            
+            saveStudyStats(testStats);
+            console.log('已創建測試統計數據:', testStats);
+            alert('已創建測試學習統計數據，現在可以測試歷史功能了！');
+        }
+
+        // 測試Cookie功能
+        function testCookieFunction() {
+            console.log('=== 測試Cookie功能 ===');
+            
+            // 檢查當前協議
+            console.log('當前協議:', window.location.protocol);
+            console.log('當前主機:', window.location.host);
+            
+            if (window.location.protocol === 'file:') {
+                alert('⚠️ 警告：您正在使用 file:// 協議訪問網頁。\n\nCookie功能可能無法正常工作，學習統計可能不會被保存。\n\n建議：\n1. 使用 Python 服務器啟動 (python server.py)\n2. 或使用 Live Server 等工具');
+                return false;
+            }
+            
+            // 測試設置和讀取Cookie
+            const testData = { test: '測試數據', timestamp: new Date().toISOString() };
+            setCookie('testCookie', testData);
+            
+            const retrievedData = getCookie('testCookie');
+            
+            if (retrievedData && retrievedData.test === '測試數據') {
+                alert('✅ Cookie功能正常！學習統計應該可以正常保存。');
+                deleteCookie('testCookie'); // 清除測試Cookie
+                return true;
+            } else {
+                alert('❌ Cookie功能異常！學習統計可能無法保存。\n\n請檢查瀏覽器設置或使用HTTP服務器。');
+                return false;
+            }
+        }
+
+        // 調試函數：檢查統計數據狀態
+        function debugStats() {
+            console.log('=== 統計數據調試信息 ===');
+            const stats = getStudyStats();
+            console.log('統計數據:', stats);
+            console.log('項目總數:', Object.keys(stats).length);
+            
+            if (Object.keys(stats).length > 0) {
+                console.log('所有項目鍵值:', Object.keys(stats));
+                
+                // 顯示每個項目的詳細信息
+                Object.entries(stats).forEach(([key, stat], index) => {
+                    console.log(`項目 ${index + 1}: ${key}`, stat);
+                });
+                
+                // 檢查是否有重複項目
+                const keys = Object.keys(stats);
+                const uniqueKeys = [...new Set(keys)];
+                if (keys.length !== uniqueKeys.length) {
+                    console.warn('⚠️ 發現重複的統計項目');
+                }
+                
+                // 檢查數據完整性
+                const invalidItems = Object.entries(stats).filter(([key, stat]) => {
+                    return !stat.diseaseName || !stat.syndromeType || 
+                           typeof stat.totalAttempts !== 'number' || 
+                           typeof stat.correctAttempts !== 'number';
+                });
+                
+                if (invalidItems.length > 0) {
+                    console.warn('⚠️ 發現無效的統計項目:', invalidItems);
+                }
+            }
+            
+            // 檢查Cookie大小
+            const cookieString = document.cookie;
+            console.log('當前所有Cookie:', cookieString);
+            console.log('Cookie總大小:', cookieString.length, '字符');
+            
+            // 檢查統計Cookie的大小
+            const statsString = JSON.stringify(stats);
+            console.log('統計數據JSON大小:', statsString.length, '字符');
+            
+            return stats;
+        }
+
+        // 調試函數：清除所有統計數據
+        function clearAllStats() {
+            if (confirm('⚠️ 確定要清除所有學習統計數據嗎？\n\n這將清除所有歷史記錄，此操作無法復原。')) {
+                removeLocalStorage('cmGameStudyStats');
+                console.log('✅ 所有統計數據已清除');
+                alert('✅ 所有統計數據已清除，可以重新開始記錄。');
+                
+                // 驗證清除結果
+                const remainingStats = getStudyStats();
+                console.log('清除後剩餘數據:', remainingStats);
+                console.log('剩餘項目數:', Object.keys(remainingStats).length);
+            }
+        }
+        
+        // 測試批量統計更新
+        function testBatchStats() {
+            console.log('=== 開始批量統計測試 ===');
+            const testCombinations = [
+                ['感冒', '風寒束表證'],
+                ['咳嗽', '風寒襲肺證'],
+                ['哮證', '冷哮證'],
+                ['喘證', '肺腎氣虛證'],
+                ['肺脹', '痰濁壅肺證'],
+                ['肺痿', '肺陰虛證'],
+                ['肺癰', '熱毒壅肺證']
+            ];
+            
+            console.log(`準備測試 ${testCombinations.length} 個病名證型組合`);
+            
+            testCombinations.forEach(([disease, syndrome], index) => {
+                console.log(`\n--- 測試 ${index + 1}/${testCombinations.length}: ${disease}_${syndrome} ---`);
+                updateStudyStats(disease, syndrome, Math.random() > 0.5);
+            });
+            
+            console.log('\n=== 批量測試完成 ===');
+            const finalStats = getStudyStats();
+            console.log(`最終統計項目數: ${Object.keys(finalStats).length}`);
+        }
+        
+        // 測試基本LocalStorage功能
+        function testBasicLocalStorage() {
+            console.log('=== 測試基本LocalStorage功能 ===');
+            
+            // 測試1: 設置簡單的數據
+            const testData = { test: 'hello', count: 1 };
+            console.log('測試1: 設置簡單LocalStorage');
+            setLocalStorage('testStorage', testData);
+            
+            setTimeout(() => {
+                const retrieved = getLocalStorage('testStorage');
+                console.log('檢索結果:', retrieved);
+                
+                // 測試2: 設置較大的數據
+                const largeData = {};
+                for (let i = 0; i < 50; i++) {
+                    largeData[`item_${i}`] = {
+                        name: `測試項目${i}`,
+                        description: `這是一個測試項目，包含較長的描述文字，用來測試LocalStorage的容量和性能。項目編號: ${i}`,
+                        value: Math.random(),
+                        timestamp: new Date().toISOString(),
+                        metadata: {
+                            created: new Date().toISOString(),
+                            version: '1.0',
+                            tags: ['test', 'demo', `item${i}`]
+                        }
+                    };
+                }
+                
+                console.log('測試2: 設置較大LocalStorage數據');
+                setLocalStorage('largeStorage', largeData);
+                
+                setTimeout(() => {
+                    const largeRetrieved = getLocalStorage('largeStorage');
+                    console.log('大數據檢索結果項目數:', Object.keys(largeRetrieved || {}).length);
+                    
+                    // 測試3: 清理測試數據
+                    removeLocalStorage('testStorage');
+                    removeLocalStorage('largeStorage');
+                    console.log('測試數據已清理');
+                }, 100);
+                
+            }, 100);
+        }
+        
+        // 檢查LocalStorage使用情況
+        function checkStorageUsage() {
+            console.log('=== LocalStorage 使用情況 ===');
+            
+            try {
+                // 計算當前使用的空間
+                let totalSize = 0;
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        const value = localStorage.getItem(key);
+                        totalSize += key.length + (value ? value.length : 0);
+                    }
+                }
+                
+                console.log(`總使用空間: ${totalSize} 字符 (${(totalSize / 1024).toFixed(2)} KB)`);
+                console.log(`項目數量: ${localStorage.length}`);
+                
+                // 顯示各個項目的大小
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        const value = localStorage.getItem(key);
+                        const size = key.length + (value ? value.length : 0);
+                        console.log(`- ${key}: ${size} 字符 (${(size / 1024).toFixed(2)} KB)`);
+                    }
+                }
+                
+                // 檢查統計數據
+                const stats = getStudyStats();
+                const statsCount = Object.keys(stats).length;
+                console.log(`\n學習統計項目數: ${statsCount}`);
+                
+            } catch (error) {
+                console.error('檢查存儲使用情況失敗:', error);
+            }
+        }
+    </script>
+</body>
+</html>
