@@ -259,6 +259,62 @@
             padding: 15px;
             border-radius: 8px;
             margin-top: 10px;
+            max-height: 300px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .question-text:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .question-text.expanded {
+            max-height: none;
+        }
+
+        .question-text.has-overflow:not(.expanded)::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(transparent, rgba(255, 255, 255, 0.1));
+            pointer-events: none;
+        }
+
+        .question-text.has-overflow::after {
+            content: "📖 點擊展開完整內容";
+            position: absolute;
+            bottom: 8px;
+            right: 15px;
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: normal;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(2px);
+        }
+
+        .question-text.has-overflow.expanded::after {
+            content: "📚 點擊收合內容";
+        }
+
+        .question-text.has-overflow:hover::after {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* 當沒有溢出時，移除cursor pointer */
+        .question-text:not(.has-overflow) {
+            cursor: default;
         }
 
         .answer-options {
@@ -649,7 +705,7 @@
     <div class="container">
         <div class="header">
             <h1>中醫學習選擇題遊戲</h1>
-            <p>測試您的中醫理論知識</p>
+            <p>即便現在你仍需學習，但在病人眼中你就是醫生。</p>
         </div>
 
         <div class="main-content">
@@ -774,7 +830,7 @@
 
                 <div class="question-header">
                     <div class="question-number" id="questionNumber"></div>
-                    <div class="question-text" id="questionText"></div>
+                    <div class="question-text" id="questionText" onclick="toggleQuestionText()"></div>
                 </div>
 
                 <div id="resultDisplay" class="result-display hidden"></div>
@@ -1074,6 +1130,7 @@
             // 為所有checkbox-item添加點擊事件
             document.querySelectorAll('.checkbox-item').forEach(item => {
                 const checkbox = item.querySelector('input[type="checkbox"]');
+                const label = item.querySelector('label');
                 
                 // 初始化選中狀態樣式
                 if (checkbox) {
@@ -1085,15 +1142,18 @@
                     });
                 }
                 
-                // 點擊整個項目切換checkbox
+                // 點擊整個項目切換checkbox（但不包括checkbox本身和label）
                 item.addEventListener('click', function(e) {
-                    // 如果點擊的不是checkbox本身，則切換checkbox狀態
-                    if (e.target.type !== 'checkbox') {
-                        if (checkbox) {
-                            checkbox.checked = !checkbox.checked;
-                            // 觸發change事件
-                            checkbox.dispatchEvent(new Event('change'));
-                        }
+                    // 如果點擊的是checkbox本身或label，讓瀏覽器默認行為處理
+                    if (e.target.type === 'checkbox' || e.target.tagName === 'LABEL') {
+                        return;
+                    }
+                    
+                    // 否則，手動切換checkbox狀態
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        // 觸發change事件
+                        checkbox.dispatchEvent(new Event('change'));
                     }
                 });
             });
@@ -1204,10 +1264,29 @@
                 try {
                     // Fix unquoted 'ahyy' values in the JSON before parsing
                     // 使用更精確的正則表達式來處理 ahyy 值
-                    const fixedData = decodedData.replace(/:\s*ahyy\b/g, ': "ahyy"');
+                    let fixedData = decodedData.replace(/:\s*ahyy\b/g, ': "ahyy"');
+                    
                     jsonData = JSON.parse(fixedData);
                     console.log('解析後數據條數:', jsonData.length);
-                    console.log('數據解碼和解析完成，包含中文字符');
+                    
+                    // 清理BOM字符和其他不可見字符
+                    jsonData = jsonData.map(row => {
+                        const cleanedRow = {};
+                        Object.keys(row).forEach(key => {
+                            // 清理鍵名中的BOM和其他不可見字符
+                            const cleanKey = key.replace(/^\uFEFF/, '').replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+                            // 清理值中的不可見字符
+                            const cleanValue = typeof row[key] === 'string' ? 
+                                row[key].replace(/[\u200B-\u200D\uFEFF]/g, '').trim() : row[key];
+                            cleanedRow[cleanKey] = cleanValue;
+                        });
+                        return cleanedRow;
+                    });
+                    
+                    console.log('數據解碼和解析完成，包含中文字符，已清理BOM字符');
+                    if (jsonData.length > 0) {
+                        console.log('清理後的欄位:', Object.keys(jsonData[0]));
+                    }
                 } catch (error) {
                     console.error('JSON解析錯誤詳情:', error);
                     console.error('數據樣本:', decodedData.substring(0, 200));
@@ -1383,6 +1462,39 @@
             return options.sort(() => Math.random() - 0.5);
         }
 
+        // 切換題目文字的展開/縮小狀態
+        function toggleQuestionText() {
+            const questionText = document.getElementById('questionText');
+            // 只有在有溢出時才允許切換
+            if (questionText.classList.contains('has-overflow')) {
+                questionText.classList.toggle('expanded');
+            }
+        }
+
+        // 檢查文字是否被截斷
+        function checkTextOverflow(element) {
+            // 檢查滾動高度是否大於可見高度
+            const hasVerticalOverflow = element.scrollHeight > element.clientHeight;
+            
+            // 額外檢查：臨時移除max-height限制來確認
+            const originalMaxHeight = element.style.maxHeight;
+            const originalOverflow = element.style.overflow;
+            
+            element.style.maxHeight = 'none';
+            element.style.overflow = 'visible';
+            
+            const naturalHeight = element.offsetHeight;
+            
+            element.style.maxHeight = originalMaxHeight;
+            element.style.overflow = originalOverflow;
+            
+            const constrainedHeight = element.offsetHeight;
+            
+            console.log(`文字溢出檢測: 自然高度=${naturalHeight}, 受限高度=${constrainedHeight}, 滾動高度=${element.scrollHeight}, 客戶端高度=${element.clientHeight}`);
+            
+            return hasVerticalOverflow || naturalHeight > constrainedHeight;
+        }
+
         // 開始測驗
         async function startQuiz() {
             console.log('開始測驗...');
@@ -1541,7 +1653,19 @@
             // 更新題目信息
             document.getElementById('questionNumber').textContent = 
                 `第 ${currentQuestionIndex + 1} 題 / 共 ${totalQuestions} 題`;
-            document.getElementById('questionText').textContent = question.question;
+            const questionTextElement = document.getElementById('questionText');
+            questionTextElement.textContent = question.question;
+            questionTextElement.classList.remove('expanded', 'has-overflow'); // 重置狀態
+            
+            // 檢查是否需要展開功能 - 使用更長的延遲確保渲染完成
+            setTimeout(() => {
+                if (checkTextOverflow(questionTextElement)) {
+                    questionTextElement.classList.add('has-overflow');
+                    console.log('檢測到題目文字溢出，啟用展開功能');
+                } else {
+                    console.log('題目文字未溢出，無需展開功能');
+                }
+            }, 50); // 增加延遲時間
 
             // 生成答案選項
             const options = generateAnswerOptions(question, currentDataset, optionCount, currentDifficultyMode);
