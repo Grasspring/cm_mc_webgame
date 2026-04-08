@@ -4,13 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>中醫學習選擇題遊戲</title>
-    
-    <!-- Open Graph Meta Tags for WhatsApp sharing -->
-    <meta property="og:title" content="中醫學習選擇題遊戲">
-    <meta property="og:description" content="測試您的中醫理論知識 - 內科、婦科、兒科選擇題練習 (Beta版)">
-    <meta property="og:image" itemprop="image" content="https://grasspring.github.io/cm_mc_webgame/images/logo.png">
-    <meta property="og:type" content="website">
-    
     <style>
         * {
             margin: 0;
@@ -81,7 +74,7 @@
 
         .checkbox-group {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(7, 1fr);
             gap: 8px;
             margin-top: 10px;
         }
@@ -156,6 +149,80 @@
             color: #6c757d;
             font-size: 13px;
             line-height: 1.4;
+        }
+
+        .category-filter-panel {
+            border: 2px solid #dfe6ff;
+            border-radius: 10px;
+            background: #f8f9ff;
+            overflow: hidden;
+        }
+
+        .category-filter-panel summary {
+            padding: 12px 14px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #4156a8;
+            user-select: none;
+            background: #eef2ff;
+        }
+
+        .category-filter-panel[open] summary {
+            border-bottom: 1px solid #dfe6ff;
+        }
+
+        .category-filter-actions {
+            display: flex;
+            gap: 10px;
+            padding: 10px 14px;
+            border-bottom: 1px solid #e3e8ff;
+            flex-wrap: wrap;
+        }
+
+        .mini-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .mini-btn:hover {
+            background: #5a6fd6;
+        }
+
+        .category-filter-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            background: white;
+            border: 1px solid #e2e7ff;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .category-item input[type="checkbox"] {
+            transform: scale(1.1);
+            flex-shrink: 0;
+        }
+
+        .category-filter-status {
+            margin-top: 8px;
+            color: #555;
+            font-size: 13px;
         }
 
         .button-group {
@@ -259,6 +326,62 @@
             padding: 15px;
             border-radius: 8px;
             margin-top: 10px;
+            max-height: 300px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .question-text:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .question-text.expanded {
+            max-height: none;
+        }
+
+        .question-text.has-overflow:not(.expanded)::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(transparent, rgba(255, 255, 255, 0.1));
+            pointer-events: none;
+        }
+
+        .question-text.has-overflow::after {
+            content: "📖 點擊展開完整內容";
+            position: absolute;
+            bottom: 8px;
+            right: 15px;
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: normal;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(2px);
+        }
+
+        .question-text.has-overflow.expanded::after {
+            content: "📚 點擊收合內容";
+        }
+
+        .question-text.has-overflow:hover::after {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* 當沒有溢出時，移除cursor pointer */
+        .question-text:not(.has-overflow) {
+            cursor: default;
         }
 
         .answer-options {
@@ -566,30 +689,12 @@
                 font-size: 13px;
             }
 
+            .category-filter-list {
+                grid-template-columns: 1fr;
+            }
+
             .button-group {
                 flex-direction: column;
-            }
-
-            /* 答題頁面手機版樣式調整 */
-            .question-number {
-                font-size: 1em;
-            }
-
-            .question-text {
-                font-size: 1.1em;
-                line-height: 1.6;
-                padding: 12px;
-            }
-
-            .answer-option {
-                padding: 15px;
-                font-size: 14px;
-                line-height: 1.6;
-            }
-
-            .question-controls .btn {
-                padding: 10px 20px;
-                font-size: 14px;
             }
         }
 
@@ -612,36 +717,6 @@
                 padding: 10px 15px;
                 font-size: 14px;
             }
-
-            /* 小螢幕答題頁面樣式 */
-            .question-number {
-                font-size: 0.9em;
-            }
-
-            .question-text {
-                font-size: 1em;
-                line-height: 1.5;
-                padding: 10px;
-            }
-
-            .answer-option {
-                padding: 12px;
-                font-size: 13px;
-                line-height: 1.5;
-            }
-
-            .question-controls .btn {
-                padding: 8px 16px;
-                font-size: 13px;
-            }
-
-            .header h1 {
-                font-size: 1.8em;
-            }
-
-            .header p {
-                font-size: 1em;
-            }
         }
     </style>
 </head>
@@ -649,7 +724,7 @@
     <div class="container">
         <div class="header">
             <h1>中醫學習選擇題遊戲</h1>
-            <p>測試您的中醫理論知識</p>
+            <p>即便現在你仍需學習，但在病人眼中你就是醫生。</p>
         </div>
 
         <div class="main-content">
@@ -661,6 +736,20 @@
                     <select id="subjectSelect">
                         <option value="">請選擇科目...</option>
                     </select>
+                </div>
+
+                <div class="section-title">🏷️ 題目分類</div>
+                <div class="form-group">
+                    <label>病名篩選（預設全選）：</label>
+                    <details class="category-filter-panel">
+                        <summary>點擊展開 / 收合病名清單</summary>
+                        <div class="category-filter-actions">
+                            <button type="button" class="mini-btn" onclick="selectAllDiseases()">全選</button>
+                            <button type="button" class="mini-btn" onclick="unselectAllDiseases()">全部取消</button>
+                        </div>
+                        <div id="diseaseFilterList" class="category-filter-list"></div>
+                    </details>
+                    <div id="diseaseFilterStatus" class="category-filter-status">請先選擇科目以載入病名清單</div>
                 </div>
 
                 <div class="section-title">❓ 題型設定</div>
@@ -684,8 +773,16 @@
                             <label for="info-方藥">方藥</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="info-證候" value="證候">
+                            <input type="checkbox" id="info-證候" value="證候" checked>
                             <label for="info-證候">證候</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="info-系列" value="系列">
+                            <label for="info-系列">系列</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="info-組成" value="組成">
+                            <label for="info-組成">組成</label>
                         </div>
                     </div>
                 </div>
@@ -712,6 +809,14 @@
                         <div class="checkbox-item">
                             <input type="checkbox" id="ans-證候" value="證候">
                             <label for="ans-證候">證候</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ans-系列" value="系列">
+                            <label for="ans-系列">系列</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="ans-組成" value="組成">
+                            <label for="ans-組成">組成</label>
                         </div>
                     </div>
                 </div>
@@ -752,6 +857,21 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label for="followUpMode">追問模式：</label>
+                    <select id="followUpMode">
+                        <option value="none" selected>不啟用追問</option>
+                        <option value="formula-composition">追問方藥的組成</option>
+                        <option value="formula-series">追問方藥的系列（只顯示第一方藥）</option>
+                        <option value="same-disease-syndrome">追問同病名的另一個證型</option>
+                    </select>
+                    <div class="difficulty-description">
+                        <small>
+                            <span id="followUpDesc">不啟用追問：只進行主題作答</span>
+                        </small>
+                    </div>
+                </div>
+
                 <!-- 開始測驗按鈕 -->
                 <button class="start-quiz-button" onclick="startQuiz()">
                     🎯 開始測驗
@@ -759,9 +879,9 @@
 
                 <!-- 其他功能按鈕 -->
                 <div class="other-buttons">
-                    <!--<button class="btn btn-secondary" onclick="loadDatasetFiles()">🔄 重新掃描檔案</button>-->
-                    <!--<button class="btn btn-secondary" onclick="testDataLoad()">🧪 測試數據載入</button>-->
-                    <!--<button class="btn btn-secondary" onclick="testEncodingFix()">🔧 測試編碼修復</button>-->
+                    <button class="btn btn-secondary" onclick="loadDatasetFiles()">🔄 重新掃描檔案</button>
+                    <button class="btn btn-secondary" onclick="saveQuizSettings()">💾 保存題目設定</button>
+                    <button class="btn btn-secondary" onclick="testDataLoad()">🧪 測試數據載入</button>
                     <button class="btn btn-secondary" onclick="showHistoryStats()">📈 學習歷史</button>
                 </div>
             </div>
@@ -774,7 +894,7 @@
 
                 <div class="question-header">
                     <div class="question-number" id="questionNumber"></div>
-                    <div class="question-text" id="questionText"></div>
+                    <div class="question-text" id="questionText" onclick="toggleQuestionText()"></div>
                 </div>
 
                 <div id="resultDisplay" class="result-display hidden"></div>
@@ -835,7 +955,12 @@
         let totalQuestions = 0;
         let questionAnswered = false;
         let currentDifficultyMode = 'normal';
+        let currentFollowUpMode = 'none';
+        let pendingFollowUpQuestion = null;
+        let isShowingFollowUpQuestion = false;
         let questionResults = []; // 存儲每題的答題結果
+        let followUpResults = []; // 存儲追問結果
+        const QUIZ_SETTINGS_KEY = 'cmGameQuizSettings';
 
         // 更新checkbox項目的視覺狀態（已移除著色效果）
         function updateCheckboxItemStyle(item, isChecked) {
@@ -944,6 +1069,214 @@
         // 獲取學習統計數據
         function getStudyStats() {
             return getLocalStorage('cmGameStudyStats') || {};
+        }
+
+        // 設置checkbox群組的勾選值
+        function setCheckedValues(containerId, values) {
+            if (!Array.isArray(values)) {
+                return;
+            }
+
+            const valueSet = new Set(values);
+            const checkboxes = document.querySelectorAll(`#${containerId} input[type="checkbox"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = valueSet.has(checkbox.value);
+                checkbox.dispatchEvent(new Event('change'));
+            });
+        }
+
+        // 從數據中提取病名清單
+        function extractDiseaseNames(data) {
+            const uniqueNames = new Set();
+            data.forEach(row => {
+                const diseaseName = (row['病名'] || '').trim();
+                if (diseaseName) {
+                    uniqueNames.add(diseaseName);
+                }
+            });
+            // Set 會保留插入順序，這裡可維持 CSV 原始病名順序
+            return Array.from(uniqueNames);
+        }
+
+        // 更新病名篩選狀態文字
+        function updateDiseaseFilterStatus() {
+            const allCheckboxes = document.querySelectorAll('#diseaseFilterList input[type="checkbox"]');
+            const selectedCheckboxes = document.querySelectorAll('#diseaseFilterList input[type="checkbox"]:checked');
+            const status = document.getElementById('diseaseFilterStatus');
+
+            if (!status) {
+                return;
+            }
+
+            if (allCheckboxes.length === 0) {
+                status.textContent = '當前科目沒有可用病名';
+                return;
+            }
+
+            status.textContent = `已選擇 ${selectedCheckboxes.length} / ${allCheckboxes.length} 個病名`;
+        }
+
+        // 取得目前選中的病名
+        function getSelectedDiseases() {
+            const selected = document.querySelectorAll('#diseaseFilterList input[type="checkbox"]:checked');
+            return Array.from(selected).map(item => item.value);
+        }
+
+        // 渲染病名篩選清單
+        function renderDiseaseFilterList(diseaseNames, preselectedDiseases = null) {
+            const list = document.getElementById('diseaseFilterList');
+            if (!list) {
+                return;
+            }
+
+            list.innerHTML = '';
+
+            if (!Array.isArray(diseaseNames) || diseaseNames.length === 0) {
+                updateDiseaseFilterStatus();
+                return;
+            }
+
+            let selectedSet = null;
+            if (Array.isArray(preselectedDiseases)) {
+                const validSelections = preselectedDiseases.filter(name => diseaseNames.includes(name));
+
+                if (preselectedDiseases.length === 0) {
+                    selectedSet = new Set();
+                } else if (validSelections.length > 0) {
+                    selectedSet = new Set(validSelections);
+                }
+            }
+
+            diseaseNames.forEach(name => {
+                const item = document.createElement('label');
+                item.className = 'category-item';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = name;
+                checkbox.checked = selectedSet === null ? true : selectedSet.has(name);
+                checkbox.addEventListener('change', updateDiseaseFilterStatus);
+
+                const labelText = document.createElement('span');
+                labelText.textContent = name;
+
+                item.appendChild(checkbox);
+                item.appendChild(labelText);
+                list.appendChild(item);
+            });
+
+            updateDiseaseFilterStatus();
+        }
+
+        // 全選/取消病名勾選
+        function setAllDiseaseSelection(checked) {
+            const checkboxes = document.querySelectorAll('#diseaseFilterList input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = checked;
+            });
+            updateDiseaseFilterStatus();
+        }
+
+        function selectAllDiseases() {
+            setAllDiseaseSelection(true);
+        }
+
+        function unselectAllDiseases() {
+            setAllDiseaseSelection(false);
+        }
+
+        // 根據科目更新病名篩選清單
+        async function updateDiseaseFiltersForSelectedSubject(preselectedDiseases = null) {
+            const subjectSelect = document.getElementById('subjectSelect');
+            const selectedSubject = subjectSelect ? subjectSelect.value : '';
+            const status = document.getElementById('diseaseFilterStatus');
+
+            if (!selectedSubject) {
+                renderDiseaseFilterList([]);
+                if (status) {
+                    status.textContent = '請先選擇科目以載入病名清單';
+                }
+                return;
+            }
+
+            if (status) {
+                status.textContent = '載入病名清單中...';
+            }
+
+            const data = await loadCSVData(selectedSubject);
+            const diseaseNames = extractDiseaseNames(data);
+            renderDiseaseFilterList(diseaseNames, preselectedDiseases);
+        }
+
+        // 收集目前題目設定
+        function collectQuizSettings() {
+            return {
+                subject: document.getElementById('subjectSelect').value,
+                questionInfo: getCheckedValues('questionInfo'),
+                answerInfo: getCheckedValues('answerInfo'),
+                optionCount: document.getElementById('optionCount').value,
+                questionCount: document.getElementById('questionCount').value,
+                difficultyMode: document.getElementById('difficultyMode').value,
+                followUpMode: document.getElementById('followUpMode').value,
+                selectedDiseases: getSelectedDiseases()
+            };
+        }
+
+        // 保存題目設定
+        function saveQuizSettings() {
+            const settings = collectQuizSettings();
+            const saveSuccess = setLocalStorage(QUIZ_SETTINGS_KEY, settings);
+
+            if (saveSuccess) {
+                alert('✅ 題目設定已保存，下次開啟首頁會自動載入。');
+            } else {
+                alert('❌ 題目設定保存失敗，請稍後重試。');
+            }
+        }
+
+        // 套用已保存題目設定
+        async function applySavedQuizSettings() {
+            const savedSettings = getLocalStorage(QUIZ_SETTINGS_KEY);
+            if (!savedSettings || typeof savedSettings !== 'object') {
+                await updateDiseaseFiltersForSelectedSubject();
+                return;
+            }
+
+            const subjectSelect = document.getElementById('subjectSelect');
+            if (savedSettings.subject && subjectSelect) {
+                const hasSubject = Array.from(subjectSelect.options).some(option => option.value === savedSettings.subject);
+                if (hasSubject) {
+                    subjectSelect.value = savedSettings.subject;
+                }
+            }
+
+            setCheckedValues('questionInfo', savedSettings.questionInfo);
+            setCheckedValues('answerInfo', savedSettings.answerInfo);
+
+            if (savedSettings.optionCount) {
+                document.getElementById('optionCount').value = savedSettings.optionCount;
+            }
+            if (savedSettings.questionCount) {
+                document.getElementById('questionCount').value = savedSettings.questionCount;
+            }
+            if (savedSettings.difficultyMode) {
+                document.getElementById('difficultyMode').value = savedSettings.difficultyMode;
+            }
+            if (savedSettings.followUpMode) {
+                document.getElementById('followUpMode').value = savedSettings.followUpMode;
+            }
+
+            await updateDiseaseFiltersForSelectedSubject(savedSettings.selectedDiseases);
+
+            const difficultySelect = document.getElementById('difficultyMode');
+            if (difficultySelect) {
+                difficultySelect.dispatchEvent(new Event('change'));
+            }
+
+            const followUpSelect = document.getElementById('followUpMode');
+            if (followUpSelect) {
+                followUpSelect.dispatchEvent(new Event('change'));
+            }
         }
 
         // 保存學習統計數據
@@ -1058,7 +1391,7 @@
         }
 
         // 頁面加載時初始化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('=== 中醫學習選擇題遊戲初始化 ===');
             console.log('瀏覽器:', navigator.userAgent);
             console.log('當前網址:', window.location.href);
@@ -1074,6 +1407,7 @@
             // 為所有checkbox-item添加點擊事件
             document.querySelectorAll('.checkbox-item').forEach(item => {
                 const checkbox = item.querySelector('input[type="checkbox"]');
+                const label = item.querySelector('label');
                 
                 // 初始化選中狀態樣式
                 if (checkbox) {
@@ -1085,15 +1419,18 @@
                     });
                 }
                 
-                // 點擊整個項目切換checkbox
+                // 點擊整個項目切換checkbox（但不包括checkbox本身和label）
                 item.addEventListener('click', function(e) {
-                    // 如果點擊的不是checkbox本身，則切換checkbox狀態
-                    if (e.target.type !== 'checkbox') {
-                        if (checkbox) {
-                            checkbox.checked = !checkbox.checked;
-                            // 觸發change事件
-                            checkbox.dispatchEvent(new Event('change'));
-                        }
+                    // 如果點擊的是checkbox本身或label，讓瀏覽器默認行為處理
+                    if (e.target.type === 'checkbox' || e.target.tagName === 'LABEL') {
+                        return;
+                    }
+                    
+                    // 否則，手動切換checkbox狀態
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        // 觸發change事件
+                        checkbox.dispatchEvent(new Event('change'));
                     }
                 });
             });
@@ -1111,48 +1448,64 @@
                     }
                 });
             }
+
+            const followUpSelect = document.getElementById('followUpMode');
+            const followUpDesc = document.getElementById('followUpDesc');
+
+            if (followUpSelect && followUpDesc) {
+                followUpSelect.addEventListener('change', function() {
+                    const descMap = {
+                        'none': '不啟用追問：只進行主題作答',
+                        'formula-composition': '主題作答後追問：該方藥的組成是什麼',
+                        'formula-series': '主題作答後追問：該方藥屬於哪個系列（同系列答案會自動合併）',
+                        'same-disease-syndrome': '主題作答後追問：同病名下的另一個證型'
+                    };
+                    followUpDesc.textContent = descMap[this.value] || descMap.none;
+                });
+            }
+
+            const subjectSelect = document.getElementById('subjectSelect');
+            if (subjectSelect) {
+                subjectSelect.addEventListener('change', async function() {
+                    await updateDiseaseFiltersForSelectedSubject();
+                });
+            }
             
-            loadDatasetFiles();
+            await loadDatasetFiles();
+            await applySavedQuizSettings();
         });
 
-        // 載入數據集文件
+        // 載入數據集文件（GitHub Pages 版使用加密數據集）
         async function loadDatasetFiles() {
-            console.log('載入加密數據集...');
-            
+            console.log('載入加密數據集科目列表...');
+
             try {
-                // 檢查是否有加密數據集
-                if (typeof ENCRYPTED_DATASETS === 'undefined') {
+                if (typeof ENCRYPTED_DATASETS === 'undefined' || !ENCRYPTED_DATASETS) {
                     throw new Error('加密數據集未載入');
+                }
+
+                const subjects = Object.keys(ENCRYPTED_DATASETS);
+                if (subjects.length === 0) {
+                    throw new Error('加密數據集沒有任何科目');
                 }
 
                 const select = document.getElementById('subjectSelect');
                 select.innerHTML = '<option value="">請選擇科目...</option>';
-                
-                // 從加密數據集中獲取科目列表
-                const subjects = Object.keys(ENCRYPTED_DATASETS);
-                console.log('可用科目:', subjects);
-                
+
                 subjects.forEach(subjectKey => {
                     const option = document.createElement('option');
                     option.value = subjectKey;
-                    // 將鍵名轉換為顯示名稱
-                    const displayName = subjectKey.includes('_') ? subjectKey.split('_').slice(1).join('_') : subjectKey;
-                    option.textContent = displayName;
+                    option.textContent = subjectKey.includes('_')
+                        ? subjectKey.split('_').slice(1).join('_')
+                        : subjectKey;
                     select.appendChild(option);
                 });
 
-                // 自動選擇第一個科目
-                if (subjects.length > 0) {
-                    select.value = subjects[0];
-                    const displayName = subjects[0].includes('_') ? subjects[0].split('_').slice(1).join('_') : subjects[0];
-                    console.log('已自動選擇第一個科目:', displayName);
-                }
-
-                console.log('科目選項已載入完成');
+                select.value = subjects[0];
+                console.log('科目選項已載入完成:', subjects);
 
             } catch (error) {
-                console.error('載入加密數據集失敗:', error);
-                // 備用方案：提供預設科目選項
+                console.error('載入加密科目列表失敗，使用備援科目:', error);
                 const select = document.getElementById('subjectSelect');
                 select.innerHTML = `
                     <option value="">請選擇科目...</option>
@@ -1160,81 +1513,88 @@
                     <option value="02_婦科">婦科</option>
                     <option value="03_兒科">兒科</option>
                 `;
-                
-                select.value = "01_內科";
-                console.log('使用備用預設科目選項');
+                select.value = '01_內科';
             }
+
+            await updateDiseaseFiltersForSelectedSubject();
         }
 
-        // 載入並解密數據
+        // 載入並解密數據（Base64 JSON）
         async function loadCSVData(subjectKey) {
             try {
                 console.log('正在載入加密數據:', subjectKey);
-                
-                // 檢查是否有加密數據集
-                if (typeof ENCRYPTED_DATASETS === 'undefined') {
+
+                if (typeof ENCRYPTED_DATASETS === 'undefined' || !ENCRYPTED_DATASETS) {
                     throw new Error('加密數據集未載入');
                 }
-                
-                // 獲取對應的加密數據
+
                 const encryptedData = ENCRYPTED_DATASETS[subjectKey];
                 if (!encryptedData) {
                     throw new Error(`找不到科目數據: ${subjectKey}`);
                 }
-                
-                console.log('加密數據長度:', encryptedData.length, '字符');
-                
-                // 解密數據 (Base64解碼) - 支持UTF-8字符
-                let decodedData;
-                try {
-                    // 使用正確的UTF-8 Base64解碼方法
-                    const binaryString = atob(encryptedData);
-                    const bytes = new Uint8Array(binaryString.length);
-                    for (let i = 0; i < binaryString.length; i++) {
-                        bytes[i] = binaryString.charCodeAt(i);
-                    }
-                    decodedData = new TextDecoder('utf-8').decode(bytes);
-                    console.log('解密後數據長度:', decodedData.length, '字符');
-                } catch (error) {
-                    throw new Error('數據解密失敗: ' + error.message);
+
+                const binaryString = atob(encryptedData);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
                 }
-                
-                // 解析JSON數據
-                let jsonData;
-                try {
-                    // Fix unquoted 'ahyy' values in the JSON before parsing
-                    // 使用更精確的正則表達式來處理 ahyy 值
-                    const fixedData = decodedData.replace(/:\s*ahyy\b/g, ': "ahyy"');
-                    jsonData = JSON.parse(fixedData);
-                    console.log('解析後數據條數:', jsonData.length);
-                    console.log('數據解碼和解析完成，包含中文字符');
-                } catch (error) {
-                    console.error('JSON解析錯誤詳情:', error);
-                    console.error('數據樣本:', decodedData.substring(0, 200));
-                    throw new Error('JSON解析失敗: ' + error.message);
+                const decodedData = new TextDecoder('utf-8').decode(bytes);
+
+                let jsonData = JSON.parse(decodedData);
+                if (!Array.isArray(jsonData)) {
+                    throw new Error('解密後資料格式不是陣列');
                 }
-                
-                if (!Array.isArray(jsonData) || jsonData.length === 0) {
-                    throw new Error('數據格式錯誤或為空');
+
+                const headerAliases = {
+                    '方药': '方藥',
+                    '证型': '證型',
+                    '证候': '證候',
+                    '组成': '組成',
+                    '組方': '組成'
+                };
+
+                const normalizeHeaderName = (header, index) => {
+                    const raw = (header || '').toString().trim();
+                    const withoutBom = index === 0 ? raw.replace(/^\uFEFF/, '') : raw;
+                    const compact = withoutBom.replace(/\s+/g, '');
+                    return headerAliases[compact] || compact;
+                };
+
+                const optionalExtendedFields = ['系列', '組成'];
+
+                const normalizedData = jsonData
+                    .map(row => {
+                        const normalizedRow = {};
+                        const keys = Object.keys(row || {});
+
+                        keys.forEach((key, index) => {
+                            const normalizedKey = normalizeHeaderName(key, index);
+                            const value = row[key];
+                            normalizedRow[normalizedKey] = typeof value === 'string'
+                                ? value.replace(/[\u200B-\u200D\uFEFF]/g, '').trim()
+                                : (value ?? '');
+                        });
+
+                        optionalExtendedFields.forEach(field => {
+                            if (!(field in normalizedRow)) {
+                                normalizedRow[field] = '';
+                            }
+                        });
+
+                        return normalizedRow;
+                    })
+                    .filter(row => Object.values(row).some(value => (value || '').toString().trim() !== ''));
+
+                if (normalizedData.length === 0) {
+                    throw new Error('沒有有效的數據行');
                 }
-                
-                // 驗證數據結構
-                const sampleRow = jsonData[0];
-                const requiredFields = ['病名', '證型', '治法', '方藥', '證候'];
-                const missingFields = requiredFields.filter(field => !(field in sampleRow));
-                
-                if (missingFields.length > 0) {
-                    console.warn('部分必要欄位缺失:', missingFields);
-                }
-                
-                console.log('可用欄位:', Object.keys(sampleRow));
-                console.log('前3條數據範例:', jsonData.slice(0, 3));
-                
-                return jsonData;
-                
+
+                console.log('成功載入數據條數:', normalizedData.length);
+                console.log('前3條數據範例:', normalizedData.slice(0, 3));
+                return normalizedData;
             } catch (error) {
-                console.error('載入數據失敗:', error);
-                alert('載入數據失敗: ' + error.message + '\n\n請檢查:\n1. 加密數據集是否正確載入\n2. 數據格式是否正確\n3. 科目名稱是否匹配');
+                console.error('載入加密數據失敗:', error);
+                alert('載入數據失敗: ' + error.message + '\n\n請檢查:\n1. encrypted_datasets.js 是否存在\n2. 科目鍵名是否正確\n3. 加密資料格式是否正確');
                 return [];
             }
         }
@@ -1244,6 +1604,304 @@
             const container = document.getElementById(containerId);
             const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
             return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function normalizeTextValue(value) {
+            return (value || '').toString().replace(/\s+/g, ' ').trim();
+        }
+
+        function shuffleArray(items) {
+            return [...items].sort(() => Math.random() - 0.5);
+        }
+
+        function getUniqueFieldValues(rows, fieldName, options = {}) {
+            const { excludeValues = [], allowValueNone = true } = options;
+            const excluded = new Set(excludeValues.map(value => normalizeTextValue(value)));
+            const uniqueMap = new Map();
+
+            rows.forEach(row => {
+                const rawValue = (row[fieldName] || '').toString().trim();
+                if (!rawValue) {
+                    return;
+                }
+                if (!allowValueNone && rawValue === '無') {
+                    return;
+                }
+
+                const normalized = normalizeTextValue(rawValue);
+                if (!normalized || excluded.has(normalized) || uniqueMap.has(normalized)) {
+                    return;
+                }
+
+                uniqueMap.set(normalized, rawValue);
+            });
+
+            return Array.from(uniqueMap.values());
+        }
+
+        function extractCompositionIngredientsFromLine(line) {
+            let text = (line || '').toString().trim();
+            if (!text) {
+                return '';
+            }
+
+            // 移除條目序號，例如 1.、1.1、2)
+            text = text.replace(/^\d+(?:\.\d+)?\s*[.、．)）]?\s*/, '').trim();
+
+            // 去掉前導來源註記，例如 [五版教材 p.289]
+            text = text.replace(/^(?:\[[^\]]+\]\s*)+/, '').trim();
+
+            // 若有「方名 - 組成」格式，只保留組成部分
+            const dashMatch = text.match(/^[^,，、:：;；\n]{1,30}\s*[-－—]\s*(.+)$/);
+            if (dashMatch) {
+                text = dashMatch[1].trim();
+            }
+
+            // 再次清除可能殘留在開頭的來源註記
+            text = text.replace(/^(?:\[[^\]]+\]\s*)+/, '').trim();
+
+            // 單獨的「另服某方」不是組成內容，直接忽略
+            if (!/[、,，]/.test(text) && /^另服/.test(text)) {
+                return '';
+            }
+
+            // 單純方名（無藥物分隔符）不作為組成選項
+            if (!/[、,，]/.test(text) && /^[^\s]{1,20}(湯|散|丸|飲|丹|方|煎|膏|劑)(加味)?$/.test(text)) {
+                return '';
+            }
+
+            return text.replace(/[。；;]+$/, '').trim();
+        }
+
+        function normalizeCompositionForQuiz(rawComposition) {
+            const original = (rawComposition || '').toString().replace(/\r\n/g, '\n').trim();
+            if (!original || original === '無') {
+                return '';
+            }
+
+            const numberedBlockRegex = /(?:^|\n)\s*\d+(?:\.\d+)?\s*[.、．)）]?\s*([\s\S]*?)(?=(?:\n\s*\d+(?:\.\d+)?\s*[.、．)）]?\s*)|$)/g;
+            const blocks = [];
+            let match;
+
+            while ((match = numberedBlockRegex.exec(original)) !== null) {
+                blocks.push(match[1].trim());
+            }
+
+            const ingredients = [];
+
+            if (blocks.length > 0) {
+                // 有明確編號時，每個編號只取第一個有效組成行，避免同方不同來源重覆暴露
+                blocks.forEach(block => {
+                    const lines = block.split('\n').map(line => line.trim()).filter(Boolean);
+                    for (const line of lines) {
+                        const parsed = extractCompositionIngredientsFromLine(line);
+                        if (parsed) {
+                            ingredients.push(parsed);
+                            break;
+                        }
+                    }
+                });
+            } else {
+                original.split('\n').map(line => line.trim()).filter(Boolean).forEach(line => {
+                    const parsed = extractCompositionIngredientsFromLine(line);
+                    if (parsed) {
+                        ingredients.push(parsed);
+                    }
+                });
+            }
+
+            if (ingredients.length === 0) {
+                return extractCompositionIngredientsFromLine(original) || original;
+            }
+
+            return ingredients.join('、');
+        }
+
+        function getUniqueNormalizedCompositions(rows, excludeValues = []) {
+            const excluded = new Set(excludeValues.map(value => normalizeTextValue(value)));
+            const uniqueMap = new Map();
+
+            rows.forEach(row => {
+                const normalizedComposition = normalizeCompositionForQuiz(row['組成']);
+                if (!normalizedComposition) {
+                    return;
+                }
+
+                const key = normalizeTextValue(normalizedComposition);
+                if (!key || excluded.has(key) || uniqueMap.has(key)) {
+                    return;
+                }
+
+                uniqueMap.set(key, normalizedComposition);
+            });
+
+            return Array.from(uniqueMap.values());
+        }
+
+        function buildFollowUpOptions(correctAnswer, wrongAnswerPool, optionCount) {
+            const normalizedCorrect = normalizeTextValue(correctAnswer);
+            const wrongMap = new Map();
+
+            wrongAnswerPool.forEach(answer => {
+                const normalized = normalizeTextValue(answer);
+                if (!normalized || normalized === normalizedCorrect || wrongMap.has(normalized)) {
+                    return;
+                }
+                wrongMap.set(normalized, answer);
+            });
+
+            const wrongAnswers = shuffleArray(Array.from(wrongMap.values())).slice(0, Math.max(optionCount - 1, 1));
+            return shuffleArray([correctAnswer, ...wrongAnswers]);
+        }
+
+        function canGenerateFollowUpForRow(row, allData, followUpMode) {
+            if (followUpMode === 'none') {
+                return true;
+            }
+
+            if (followUpMode === 'formula-composition') {
+                const composition = normalizeCompositionForQuiz(row['組成']);
+                if (!composition) {
+                    return false;
+                }
+
+                const alternatives = getUniqueNormalizedCompositions(allData, [composition]);
+
+                return alternatives.length > 0;
+            }
+
+            if (followUpMode === 'formula-series') {
+                const series = (row['系列'] || '').toString().trim();
+                if (!series) {
+                    return false;
+                }
+
+                const alternatives = getUniqueFieldValues(allData, '系列', {
+                    excludeValues: [series]
+                });
+
+                return alternatives.length > 0;
+            }
+
+            if (followUpMode === 'same-disease-syndrome') {
+                const diseaseName = (row['病名'] || '').toString().trim();
+                const syndromeType = (row['證型'] || '').toString().trim();
+
+                if (!diseaseName || !syndromeType) {
+                    return false;
+                }
+
+                const sameDiseaseRows = allData.filter(item => (item['病名'] || '').toString().trim() === diseaseName);
+                const alternativeSyndromes = getUniqueFieldValues(sameDiseaseRows, '證型', {
+                    excludeValues: [syndromeType]
+                });
+
+                if (alternativeSyndromes.length === 0) {
+                    return false;
+                }
+
+                const allAlternativeSyndromes = getUniqueFieldValues(allData, '證型', {
+                    excludeValues: [syndromeType]
+                });
+
+                return alternativeSyndromes.some(candidate => {
+                    const candidateKey = normalizeTextValue(candidate);
+                    return allAlternativeSyndromes.some(item => normalizeTextValue(item) !== candidateKey);
+                });
+            }
+
+            return false;
+        }
+
+        function generateFollowUpQuestion(mainQuestion, allData, optionCount, followUpMode) {
+            if (followUpMode === 'none') {
+                return null;
+            }
+
+            const row = mainQuestion.data || {};
+            const formulaName = (row['方藥'] || '').toString().trim();
+
+            if (followUpMode === 'formula-composition') {
+                const composition = normalizeCompositionForQuiz(row['組成']);
+                if (!formulaName || !composition) {
+                    return null;
+                }
+
+                const wrongPool = getUniqueNormalizedCompositions(allData, [composition]);
+                const options = buildFollowUpOptions(composition, wrongPool, optionCount);
+
+                if (options.length < 2) {
+                    return null;
+                }
+
+                return {
+                    type: 'formula-composition',
+                    question: `追問：方藥「${formulaName}」的組成是？`,
+                    correctAnswer: composition,
+                    options
+                };
+            }
+
+            if (followUpMode === 'formula-series') {
+                const series = (row['系列'] || '').toString().trim();
+                if (!formulaName || !series) {
+                    return null;
+                }
+
+                // 系列追問會先做去重，避免重覆系列出現在選項中
+                const wrongPool = getUniqueFieldValues(allData, '系列', {
+                    excludeValues: [series]
+                });
+                const options = buildFollowUpOptions(series, wrongPool, optionCount);
+
+                if (options.length < 2) {
+                    return null;
+                }
+
+                return {
+                    type: 'formula-series',
+                    question: `追問：方藥「${formulaName}」屬於哪個系列？`,
+                    correctAnswer: series,
+                    options
+                };
+            }
+
+            if (followUpMode === 'same-disease-syndrome') {
+                const diseaseName = (row['病名'] || '').toString().trim();
+                const currentSyndrome = (row['證型'] || '').toString().trim();
+
+                if (!diseaseName || !currentSyndrome) {
+                    return null;
+                }
+
+                const sameDiseaseRows = allData.filter(item => (item['病名'] || '').toString().trim() === diseaseName);
+                const alternativeSyndromes = getUniqueFieldValues(sameDiseaseRows, '證型', {
+                    excludeValues: [currentSyndrome]
+                });
+
+                if (alternativeSyndromes.length === 0) {
+                    return null;
+                }
+
+                const correctAnswer = alternativeSyndromes[Math.floor(Math.random() * alternativeSyndromes.length)];
+                const wrongPool = getUniqueFieldValues(allData, '證型', {
+                    excludeValues: [correctAnswer, currentSyndrome]
+                });
+                const options = buildFollowUpOptions(correctAnswer, wrongPool, optionCount);
+
+                if (options.length < 2) {
+                    return null;
+                }
+
+                return {
+                    type: 'same-disease-syndrome',
+                    question: `追問：病名「${diseaseName}」中，下列哪一項是「${currentSyndrome}」以外的另一個證型？`,
+                    correctAnswer,
+                    options
+                };
+            }
+
+            return null;
         }
 
         // 生成題目
@@ -1390,17 +2048,22 @@
             const selectedSubject = document.getElementById('subjectSelect').value;
             const questionInfo = getCheckedValues('questionInfo');
             const answerInfo = getCheckedValues('answerInfo');
+            const selectedDiseases = getSelectedDiseases();
             const optionCount = parseInt(document.getElementById('optionCount').value);
             const questionCount = parseInt(document.getElementById('questionCount').value);
             const difficultyMode = document.getElementById('difficultyMode').value;
+            const followUpMode = document.getElementById('followUpMode').value;
+            let effectiveFollowUpMode = followUpMode;
 
             console.log('測驗設定:', {
                 科目: selectedSubject,
                 問題資訊: questionInfo,
                 答案資訊: answerInfo,
+                病名篩選: selectedDiseases,
                 選項數量: optionCount,
                 問題數量: questionCount,
-                難度模式: difficultyMode
+                難度模式: difficultyMode,
+                追問模式: followUpMode
             });
 
             // 驗證設定
@@ -1414,6 +2077,10 @@
             }
             if (answerInfo.length === 0) {
                 alert('請選擇至少一項答案資訊');
+                return;
+            }
+            if (selectedDiseases.length === 0) {
+                alert('請至少勾選一個病名分類');
                 return;
             }
 
@@ -1431,6 +2098,34 @@
                 if (currentDataset.length === 0) {
                     throw new Error('數據載入失敗或數據為空');
                 }
+
+                const selectedDiseaseSet = new Set(selectedDiseases);
+                const filteredDataset = currentDataset.filter(row => {
+                    const diseaseName = (row['病名'] || '').trim();
+                    return selectedDiseaseSet.has(diseaseName);
+                });
+
+                if (filteredDataset.length === 0) {
+                    throw new Error('病名篩選後沒有可用題目資料，請調整病名分類勾選');
+                }
+
+                console.log(`病名篩選後資料量: ${filteredDataset.length}/${currentDataset.length}`);
+
+                if (followUpMode !== 'none') {
+                    const followUpReadyDataset = filteredDataset.filter(row =>
+                        canGenerateFollowUpForRow(row, filteredDataset, followUpMode)
+                    );
+
+                    console.log(`可產生追問的資料量: ${followUpReadyDataset.length}/${filteredDataset.length}`);
+
+                    // 不再阻止啟動測驗：若完全無法追問，這次測驗自動降級為不啟用追問
+                    if (followUpReadyDataset.length === 0) {
+                        effectiveFollowUpMode = 'none';
+                        alert('⚠️ 目前資料暫時無法產生所選追問模式，這次測驗將先以主題作答進行。');
+                    }
+                }
+
+                currentDataset = filteredDataset;
 
                 console.log('數據載入成功，共', currentDataset.length, '條記錄');
 
@@ -1492,7 +2187,11 @@
                 totalQuestions = currentQuestions.length;
                 questionAnswered = false;
                 currentDifficultyMode = difficultyMode;
+                currentFollowUpMode = effectiveFollowUpMode;
+                pendingFollowUpQuestion = null;
+                isShowingFollowUpQuestion = false;
                 questionResults = []; // 重置統計數據
+                followUpResults = []; // 重置追問統計
 
                 // 切換界面
                 document.getElementById('setupSection').style.display = 'none';
@@ -1511,12 +2210,48 @@
             }
         }
 
+        // 切換題目文字的展開/縮小狀態
+        function toggleQuestionText() {
+            const questionText = document.getElementById('questionText');
+            // 只有在有溢出時才允許切換
+            if (questionText.classList.contains('has-overflow')) {
+                questionText.classList.toggle('expanded');
+            }
+        }
+
+        // 檢查文字是否被截斷
+        function checkTextOverflow(element) {
+            // 檢查滾動高度是否大於可見高度
+            const hasVerticalOverflow = element.scrollHeight > element.clientHeight;
+            
+            // 額外檢查：臨時移除max-height限制來確認
+            const originalMaxHeight = element.style.maxHeight;
+            const originalOverflow = element.style.overflow;
+            
+            element.style.maxHeight = 'none';
+            element.style.overflow = 'visible';
+            
+            const naturalHeight = element.offsetHeight;
+            
+            element.style.maxHeight = originalMaxHeight;
+            element.style.overflow = originalOverflow;
+            
+            const constrainedHeight = element.offsetHeight;
+            
+            console.log(`文字溢出檢測: 自然高度=${naturalHeight}, 受限高度=${constrainedHeight}, 滾動高度=${element.scrollHeight}, 客戶端高度=${element.clientHeight}`);
+            
+            return hasVerticalOverflow || naturalHeight > constrainedHeight;
+        }
+
         // 顯示當前題目
         function showCurrentQuestion() {
             if (currentQuestionIndex >= currentQuestions.length) {
                 showFinalScore();
                 return;
             }
+
+            isShowingFollowUpQuestion = false;
+            pendingFollowUpQuestion = null;
 
             const question = currentQuestions[currentQuestionIndex];
             const optionCount = parseInt(document.getElementById('optionCount').value);
@@ -1541,7 +2276,23 @@
             // 更新題目信息
             document.getElementById('questionNumber').textContent = 
                 `第 ${currentQuestionIndex + 1} 題 / 共 ${totalQuestions} 題`;
-            document.getElementById('questionText').textContent = question.question;
+            const questionTextElement = document.getElementById('questionText');
+            questionTextElement.textContent = question.question;
+            questionTextElement.classList.remove('expanded', 'has-overflow'); // 重置狀態
+            
+            // 檢查是否需要展開功能 - 使用更長的延遲確保渲染完成
+            setTimeout(() => {
+                // 強制重新計算佈局
+                questionTextElement.offsetHeight;
+                
+                if (checkTextOverflow(questionTextElement)) {
+                    questionTextElement.classList.add('has-overflow');
+                    console.log('檢測到文字溢出，啟用展開功能');
+                } else {
+                    questionTextElement.classList.remove('has-overflow');
+                    console.log('文字未溢出，不需要展開功能');
+                }
+            }, 50); // 增加延遲時間
 
             // 生成答案選項
             const options = generateAnswerOptions(question, currentDataset, optionCount, currentDifficultyMode);
@@ -1559,13 +2310,133 @@
             // 重置按鈕狀態
             questionAnswered = false;
             document.getElementById('showAnswerBtn').style.display = 'inline-block';
-            document.getElementById('nextQuestionBtn').style.display = 'none';
+            const nextButton = document.getElementById('nextQuestionBtn');
+            nextButton.style.display = 'none';
+            nextButton.textContent = '下一題';
 
             // 清除所有選項的選中狀態
             document.querySelectorAll('.answer-option').forEach(option => {
                 option.classList.remove('selected', 'correct', 'incorrect');
                 option.style.pointerEvents = 'auto'; // 重新啟用點擊
             });
+        }
+
+        function showFollowUpQuestion() {
+            if (!pendingFollowUpQuestion) {
+                currentQuestionIndex++;
+                showCurrentQuestion();
+                return;
+            }
+
+            isShowingFollowUpQuestion = true;
+            questionAnswered = false;
+
+            const followUp = pendingFollowUpQuestion;
+            const questionTextElement = document.getElementById('questionText');
+            questionTextElement.textContent = followUp.question;
+            questionTextElement.classList.remove('expanded', 'has-overflow');
+
+            document.getElementById('questionNumber').textContent =
+                `第 ${currentQuestionIndex + 1} 題 / 共 ${totalQuestions} 題（追問）`;
+
+            setTimeout(() => {
+                questionTextElement.offsetHeight;
+                if (checkTextOverflow(questionTextElement)) {
+                    questionTextElement.classList.add('has-overflow');
+                } else {
+                    questionTextElement.classList.remove('has-overflow');
+                }
+            }, 50);
+
+            const optionsContainer = document.getElementById('answerOptions');
+            optionsContainer.innerHTML = '';
+
+            followUp.options.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'answer-option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectFollowUpAnswer(optionDiv, option);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            document.getElementById('showAnswerBtn').style.display = 'inline-block';
+
+            const nextButton = document.getElementById('nextQuestionBtn');
+            nextButton.style.display = 'none';
+            nextButton.textContent = '下一題';
+
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+                option.style.pointerEvents = 'auto';
+            });
+        }
+
+        function selectFollowUpAnswer(element, answer) {
+            if (questionAnswered || !pendingFollowUpQuestion) {
+                return;
+            }
+
+            questionAnswered = true;
+            const isCorrect = answer === pendingFollowUpQuestion.correctAnswer;
+
+            followUpResults.push({
+                questionNumber: currentQuestionIndex + 1,
+                question: pendingFollowUpQuestion.question,
+                userAnswer: answer,
+                correctAnswer: pendingFollowUpQuestion.correctAnswer,
+                isCorrect,
+                mode: currentFollowUpMode,
+                timestamp: new Date()
+            });
+
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.classList.remove('selected');
+                option.style.pointerEvents = 'none';
+            });
+
+            element.classList.add('selected');
+
+            document.querySelectorAll('.answer-option').forEach(option => {
+                if (option.textContent === pendingFollowUpQuestion.correctAnswer) {
+                    option.classList.add('correct');
+                } else if (option.classList.contains('selected')) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            document.getElementById('showAnswerBtn').style.display = 'none';
+            const nextButton = document.getElementById('nextQuestionBtn');
+            nextButton.style.display = 'inline-block';
+            nextButton.textContent = '下一題';
+        }
+
+        function showFollowUpAnswer() {
+            if (questionAnswered || !pendingFollowUpQuestion) {
+                return;
+            }
+
+            questionAnswered = true;
+            followUpResults.push({
+                questionNumber: currentQuestionIndex + 1,
+                question: pendingFollowUpQuestion.question,
+                userAnswer: '未選擇',
+                correctAnswer: pendingFollowUpQuestion.correctAnswer,
+                isCorrect: false,
+                mode: currentFollowUpMode,
+                timestamp: new Date()
+            });
+
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.style.pointerEvents = 'none';
+                if (option.textContent === pendingFollowUpQuestion.correctAnswer) {
+                    option.classList.add('correct');
+                }
+            });
+
+            document.getElementById('showAnswerBtn').style.display = 'none';
+            const nextButton = document.getElementById('nextQuestionBtn');
+            nextButton.style.display = 'inline-block';
+            nextButton.textContent = '下一題';
         }
 
         // 選擇答案
@@ -1629,13 +2500,32 @@
                 score++;
             }
 
+            const optionCount = parseInt(document.getElementById('optionCount').value);
+            if (currentFollowUpMode !== 'none') {
+                pendingFollowUpQuestion = generateFollowUpQuestion(
+                    question,
+                    currentDataset,
+                    optionCount,
+                    currentFollowUpMode
+                );
+            } else {
+                pendingFollowUpQuestion = null;
+            }
+
             // 更新按鈕
             document.getElementById('showAnswerBtn').style.display = 'none';
-            document.getElementById('nextQuestionBtn').style.display = 'inline-block';
+            const nextButton = document.getElementById('nextQuestionBtn');
+            nextButton.style.display = 'inline-block';
+            nextButton.textContent = pendingFollowUpQuestion ? '追問題' : '下一題';
         }
 
         // 顯示答案（由於選擇答案時已經顯示，這個函數現在主要用於未選擇時強制顯示答案）
         function showAnswer() {
+            if (isShowingFollowUpQuestion) {
+                showFollowUpAnswer();
+                return;
+            }
+
             if (questionAnswered) return;
 
             questionAnswered = true;
@@ -1682,13 +2572,37 @@
                 }
             });
 
+            const optionCount = parseInt(document.getElementById('optionCount').value);
+            if (currentFollowUpMode !== 'none') {
+                pendingFollowUpQuestion = generateFollowUpQuestion(
+                    question,
+                    currentDataset,
+                    optionCount,
+                    currentFollowUpMode
+                );
+            } else {
+                pendingFollowUpQuestion = null;
+            }
+
             // 更新按鈕
             document.getElementById('showAnswerBtn').style.display = 'none';
-            document.getElementById('nextQuestionBtn').style.display = 'inline-block';
+            const nextButton = document.getElementById('nextQuestionBtn');
+            nextButton.style.display = 'inline-block';
+            nextButton.textContent = pendingFollowUpQuestion ? '追問題' : '下一題';
         }
 
         // 下一題
         function nextQuestion() {
+            if (pendingFollowUpQuestion && !isShowingFollowUpQuestion) {
+                showFollowUpQuestion();
+                return;
+            }
+
+            if (isShowingFollowUpQuestion) {
+                isShowingFollowUpQuestion = false;
+                pendingFollowUpQuestion = null;
+            }
+
             currentQuestionIndex++;
             showCurrentQuestion();
         }
@@ -1751,6 +2665,9 @@
             const incorrectAnswers = questionResults.filter(r => !r.isCorrect).length;
             const skippedAnswers = questionResults.filter(r => r.userAnswer === '未選擇').length;
             const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+            const followUpTotal = followUpResults.length;
+            const followUpCorrect = followUpResults.filter(r => r.isCorrect).length;
+            const followUpPercentage = followUpTotal > 0 ? Math.round((followUpCorrect / followUpTotal) * 100) : 0;
             
             // 計算平均答題時間（如果有時間戳記錄）
             let avgTime = 0;
@@ -1784,6 +2701,16 @@
                     <div class="stat-label">平均答題時間</div>
                 </div>
                 ` : ''}
+                ${currentFollowUpMode !== 'none' ? `
+                <div class="stat-item">
+                    <div class="stat-value">${followUpCorrect}/${followUpTotal}</div>
+                    <div class="stat-label">追問答對</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${followUpPercentage}%</div>
+                    <div class="stat-label">追問正確率</div>
+                </div>
+                ` : ''}
             `;
             
             // 生成詳細題目報告
@@ -1815,6 +2742,35 @@
                     </div>
                 `;
             });
+
+            if (followUpResults.length > 0) {
+                detailsHTML += '<h4 style="color: white; margin: 20px 0 15px;">🔁 追問詳細分析</h4>';
+                followUpResults.forEach(result => {
+                    detailsHTML += `
+                        <div class="question-result ${result.isCorrect ? 'correct' : 'incorrect'}">
+                            <div class="question-result-header">
+                                ${result.isCorrect ? '✅' : '❌'} 第 ${result.questionNumber} 題追問
+                            </div>
+                            <div class="question-result-content">
+                                <div><strong>追問：</strong></div>
+                                <div style="white-space: pre-line; margin: 8px 0; font-size: 0.9em;">${result.question}</div>
+
+                                <div class="user-answer ${result.isCorrect ? 'correct' : 'incorrect'}">
+                                    <strong>您的答案：</strong><br>
+                                    ${result.userAnswer}
+                                </div>
+
+                                ${!result.isCorrect ? `
+                                <div class="correct-answer">
+                                    <strong>正確答案：</strong><br>
+                                    ${result.correctAnswer}
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
             
             statsDetails.innerHTML = detailsHTML;
         }
@@ -1853,7 +2809,11 @@
             totalQuestions = 0;
             questionAnswered = false;
             currentDifficultyMode = 'normal';
+            currentFollowUpMode = 'none';
+            pendingFollowUpQuestion = null;
+            isShowingFollowUpQuestion = false;
             questionResults = []; // 重置統計數據
+            followUpResults = []; // 重置追問統計
             
             // 重置詳細報告顯示狀態
             const statsDetails = document.getElementById('statsDetails');
@@ -1897,87 +2857,6 @@
             } catch (error) {
                 alert('❌ 測試失敗：' + error.message);
                 console.error('測試錯誤:', error);
-            }
-        }
-
-        // 測試編碼修復功能
-        async function testEncodingFix() {
-            console.log('=== 開始測試編碼修復 ===');
-            
-            try {
-                // 檢查是否有加密數據集
-                if (typeof ENCRYPTED_DATASETS === 'undefined') {
-                    alert('❌ 無法載入加密數據集');
-                    return;
-                }
-                
-                const testSubject = '01_內科';
-                const encryptedData = ENCRYPTED_DATASETS[testSubject];
-                
-                if (!encryptedData) {
-                    alert('❌ 無法找到測試數據');
-                    return;
-                }
-                
-                let testResults = '🔧 編碼修復測試結果：\n\n';
-                testResults += `測試科目：${testSubject}\n`;
-                testResults += `加密數據長度：${encryptedData.length} 字符\n\n`;
-                
-                // 測試解碼
-                try {
-                    const binaryString = atob(encryptedData);
-                    const bytes = new Uint8Array(binaryString.length);
-                    for (let i = 0; i < binaryString.length; i++) {
-                        bytes[i] = binaryString.charCodeAt(i);
-                    }
-                    const decodedData = new TextDecoder('utf-8').decode(bytes);
-                    
-                    testResults += `✅ UTF-8 解碼成功\n`;
-                    testResults += `解碼後長度：${decodedData.length} 字符\n\n`;
-                    
-                    // 檢查是否包含中文字符
-                    const chineseMatches = decodedData.match(/[\u4e00-\u9fff]/g);
-                    if (chineseMatches) {
-                        testResults += `✅ 包含中文字符：${chineseMatches.length} 個\n`;
-                        testResults += `前10個中文字符：${chineseMatches.slice(0, 10).join('')}\n\n`;
-                    } else {
-                        testResults += `⚠️ 未檢測到中文字符\n\n`;
-                    }
-                    
-                    // 測試JSON解析
-                    try {
-                        const fixedData = decodedData.replace(/:\s*ahyy\b/g, ': "ahyy"');
-                        const jsonData = JSON.parse(fixedData);
-                        
-                        testResults += `✅ JSON 解析成功\n`;
-                        testResults += `數據項目數：${jsonData.length}\n\n`;
-                        
-                        if (jsonData.length > 0) {
-                            const firstItem = jsonData[0];
-                            testResults += `第一個項目的欄位：\n`;
-                            Object.keys(firstItem).forEach(key => {
-                                const value = firstItem[key];
-                                testResults += `- ${key}：${value.length > 20 ? value.substring(0, 20) + '...' : value}\n`;
-                            });
-                        }
-                        
-                        testResults += `\n✅ 編碼修復測試完成！數據可以正確顯示中文內容。`;
-                        
-                    } catch (jsonError) {
-                        testResults += `❌ JSON 解析失敗：${jsonError.message}\n`;
-                        testResults += `數據樣本：${decodedData.substring(0, 100)}...\n`;
-                    }
-                    
-                } catch (decodeError) {
-                    testResults += `❌ 解碼失敗：${decodeError.message}`;
-                }
-                
-                alert(testResults);
-                console.log('編碼測試結果:', testResults);
-                
-            } catch (error) {
-                alert('❌ 編碼測試失敗：' + error.message);
-                console.error('編碼測試錯誤:', error);
             }
         }
 
