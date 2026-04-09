@@ -1800,14 +1800,12 @@
                     return false;
                 }
 
-                const allAlternativeSyndromes = getUniqueFieldValues(allData, '證型', {
-                    excludeValues: [syndromeType]
+                // 錯誤選項必須排除同病名的其他證型，確保僅有一個同病名證型（正確答案）
+                const wrongPool = getUniqueFieldValues(allData, '證型', {
+                    excludeValues: [syndromeType, ...alternativeSyndromes]
                 });
 
-                return alternativeSyndromes.some(candidate => {
-                    const candidateKey = normalizeTextValue(candidate);
-                    return allAlternativeSyndromes.some(item => normalizeTextValue(item) !== candidateKey);
-                });
+                return wrongPool.length > 0;
             }
 
             return false;
@@ -1884,8 +1882,10 @@
                 }
 
                 const correctAnswer = alternativeSyndromes[Math.floor(Math.random() * alternativeSyndromes.length)];
+
+                // 排除同病名所有可替代證型，避免選項中出現多個同病名的另一證型
                 const wrongPool = getUniqueFieldValues(allData, '證型', {
-                    excludeValues: [correctAnswer, currentSyndrome]
+                    excludeValues: [currentSyndrome, ...alternativeSyndromes]
                 });
                 const options = buildFollowUpOptions(correctAnswer, wrongPool, optionCount);
 
